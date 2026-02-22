@@ -1,0 +1,3246 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>The Label Game - DRZ Document Sortering</title>
+<style>
+/* ============================================================
+   CSS CUSTOM PROPERTIES
+   ============================================================ */
+:root {
+  --sky-top: #4FC3F7;
+  --sky-bottom: #87CEEB;
+  --sun-color: #FFD54F;
+  --ground-color: #66BB6A;
+  --hill-far: #81C784;
+  --hill-near: #43A047;
+
+  --bucket-algemeen: #42A5F5;
+  --bucket-intern: #AB47BC;
+  --bucket-vertrouwelijk: #FFA726;
+  --bucket-dep-v: #EF5350;
+  --bucket-staatsgeheim: #EC407A;
+
+  --card-bg: #FFFDE7;
+  --card-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  --card-border-radius: 16px;
+
+  --correct-glow: #69F0AE;
+  --wrong-flash: #FF5252;
+
+  --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --bucket-height: 110px;
+  --flying-doc-size: 70px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: var(--font-main);
+  background: #222;
+}
+
+/* ============================================================
+   GAME CONTAINER
+   ============================================================ */
+#game-container {
+  position: relative;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  filter: saturate(1.15);
+}
+
+/* ============================================================
+   BACKGROUND LAYERS
+   ============================================================ */
+#bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transition: filter 0.5s ease;
+}
+
+.state-inspecting #bg-layer,
+.state-dragging #bg-layer,
+.state-feedback #bg-layer {
+  filter: blur(3px) brightness(0.7);
+}
+
+/* Background keeps animating during all states */
+
+#sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, #E1F5FE 100%);
+}
+
+/* Sun */
+#sun {
+  position: absolute;
+  top: 6%; right: 12%;
+  width: 90px; height: 90px;
+  z-index: 1;
+}
+#sun .sun-body {
+  fill: var(--sun-color);
+  stroke: #F9A825;
+  stroke-width: 2;
+}
+#sun .sun-rays {
+  transform-origin: 50px 50px;
+  animation: sun-spin 40s linear infinite;
+}
+#sun .sun-ray {
+  stroke: var(--sun-color);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+@keyframes sun-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Clouds */
+#clouds {
+  position: absolute;
+  top: 4%; left: 0;
+  width: 300%; height: 25%;
+  z-index: 2;
+  animation: scroll-clouds 80s linear infinite;
+}
+
+.cloud {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.9;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+@keyframes scroll-clouds {
+  from { transform: translateX(0); }
+  to { transform: translateX(-33.33%); }
+}
+
+/* Hills - far */
+#hills-far {
+  position: absolute;
+  bottom: 12%; left: 0;
+  width: 200%; height: 22%;
+  z-index: 3;
+  animation: scroll-hills-far 50s linear infinite;
+}
+
+#hills-far svg { width: 100%; height: 100%; display: block; }
+
+@keyframes scroll-hills-far {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Hills - near */
+#hills-near {
+  position: absolute;
+  bottom: 8%; left: 0;
+  width: 200%; height: 18%;
+  z-index: 4;
+  animation: scroll-hills-near 30s linear infinite;
+}
+
+#hills-near svg { width: 100%; height: 100%; display: block; }
+
+@keyframes scroll-hills-near {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Ground */
+#ground {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 14%;
+  background: linear-gradient(180deg, var(--ground-color) 0%, #4CAF50 40%, #388E3C 100%);
+  z-index: 5;
+}
+
+/* Grass tufts */
+#ground::before {
+  content: '';
+  position: absolute;
+  top: -8px; left: 0;
+  width: 200%; height: 16px;
+  background: repeating-linear-gradient(90deg,
+    transparent 0px, transparent 12px,
+    var(--ground-color) 12px, var(--ground-color) 14px,
+    transparent 14px, transparent 30px
+  );
+  animation: scroll-grass 10s linear infinite;
+}
+
+@keyframes scroll-grass {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   FLYING ZONE
+   ============================================================ */
+#flying-zone {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  contain: layout style;
+}
+
+.state-inspecting #flying-zone,
+.state-dragging #flying-zone,
+.state-feedback #flying-zone {
+  pointer-events: none;
+}
+
+.state-inspecting .flying-doc,
+.state-dragging .flying-doc,
+.state-feedback .flying-doc {
+  opacity: 0.3;
+  pointer-events: none !important;
+}
+
+/* ============================================================
+   FLYING DOCUMENT
+   ============================================================ */
+.flying-doc {
+  position: absolute;
+  top: var(--fly-y);
+  width: var(--flying-doc-size);
+  height: calc(var(--flying-doc-size) * 1.3);
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 10;
+  animation:
+    fly-across var(--fly-speed) linear forwards,
+    bob 2.5s ease-in-out infinite;
+  will-change: transform;
+  transition: opacity 0.3s;
+}
+
+.flying-doc:hover {
+  filter: brightness(1.15) drop-shadow(0 0 8px rgba(255,255,255,0.6));
+}
+
+.flying-doc:hover .doc-body-shape {
+  transform: scale(1.08);
+}
+
+.doc-body-shape {
+  width: 100%; height: 100%;
+  background: var(--card-bg);
+  border-radius: 3px 10px 3px 3px;
+  border: 3px solid #333;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  position: relative;
+  z-index: 2;
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+  overflow: hidden;
+}
+
+/* Dog-ear fold */
+.doc-body-shape::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 14px; height: 14px;
+  background: linear-gradient(225deg, #ccc 50%, var(--card-bg) 50%);
+  border-bottom-left-radius: 3px;
+}
+
+/* Fake text lines */
+.doc-lines {
+  position: absolute;
+  top: 24%; left: 15%; right: 15%; bottom: 20%;
+  background: repeating-linear-gradient(to bottom,
+    #bbb 0px, #bbb 2px,
+    transparent 2px, transparent 9px
+  );
+  opacity: 0.5;
+  border-radius: 1px;
+}
+
+/* Wings */
+.wing {
+  position: absolute;
+  top: 8%;
+  width: 32px; height: 16px;
+  background: linear-gradient(180deg, #f5f5f5, #e0e0e0);
+  border: 2px solid #555;
+  border-radius: 50% 50% 10% 10%;
+  z-index: 1;
+}
+
+.wing-left {
+  right: 80%;
+  transform-origin: right bottom;
+  animation: flap-left 0.25s ease-in-out infinite;
+}
+
+.wing-right {
+  left: 80%;
+  transform-origin: left bottom;
+  animation: flap-right 0.25s ease-in-out infinite;
+}
+
+@keyframes flap-left {
+  0%, 100% { transform: rotateZ(25deg) scaleY(1); }
+  50% { transform: rotateZ(-15deg) scaleY(0.7); }
+}
+
+@keyframes flap-right {
+  0%, 100% { transform: rotateZ(-25deg) scaleY(1); }
+  50% { transform: rotateZ(15deg) scaleY(0.7); }
+}
+
+@keyframes fly-across {
+  from { left: 105%; }
+  to { left: -18%; }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ============================================================
+   DOCUMENT OVERLAY
+   ============================================================ */
+#doc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+#doc-overlay.visible {
+  display: flex;
+}
+
+#doc-card {
+  width: min(460px, 88vw);
+  max-height: 55vh;
+  background: var(--card-bg);
+  border-radius: var(--card-border-radius);
+  border: 4px solid #333;
+  box-shadow: var(--card-shadow);
+  padding: 28px 24px 20px;
+  overflow-y: auto;
+  position: fixed;
+  transform-origin: center center;
+  cursor: grab;
+  z-index: 31;
+  /* Paper texture lines */
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 28px);
+}
+
+#doc-card:active { cursor: grabbing; }
+
+#doc-card.dragging {
+  cursor: grabbing;
+  opacity: 0.92;
+}
+
+.doc-classification-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: white;
+  margin-bottom: 8px;
+  border: 2px solid rgba(0,0,0,0.15);
+}
+
+#doc-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+#doc-description {
+  font-size: 0.88rem;
+  color: #666;
+  margin-bottom: 14px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+#doc-body {
+  font-size: 0.78rem;
+  color: #666;
+  line-height: 1.6;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 10px;
+  margin-bottom: 16px;
+}
+
+#doc-body b {
+  color: #333;
+  font-weight: 800;
+  background: rgba(255, 235, 59, 0.2);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* Hint button – top-right corner */
+.hint-btn {
+  position: sticky;
+  top: 0;
+  float: right;
+  padding: 3px 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-family: var(--font-main);
+  color: #fff;
+  background: linear-gradient(180deg, #FFA726, #F57C00);
+  border: 1.5px solid #333;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 1px 0 #E65100;
+  transition: transform 0.1s, box-shadow 0.1s;
+  z-index: 5;
+  line-height: 1.3;
+  margin: -4px -4px 0 0;
+}
+
+.hint-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 0 #E65100;
+}
+
+.hint-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0px 0 #E65100;
+}
+
+.hint-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+
+.hint-result {
+  background: rgba(0,0,0,0.75);
+  color: #FFD700;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.hint-result:empty {
+  display: none;
+}
+
+/* Drag hint – prominent grab-handle bar */
+#drag-hint {
+  text-align: center;
+  padding: 0;
+  margin-top: 12px;
+  opacity: 0;
+  transition: opacity 0.4s, transform 0.4s;
+  transform: translateY(8px);
+}
+
+#drag-hint.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.drag-handle-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #42A5F5, #1E88E5);
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 40px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: grab;
+  box-shadow: 0 4px 16px rgba(30, 136, 229, 0.4), inset 0 1px 0 rgba(255,255,255,0.25);
+  border: 2px solid rgba(255,255,255,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: handle-pulse 2s ease-in-out infinite;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.drag-handle-bar:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(30, 136, 229, 0.3);
+}
+
+.drag-handle-bar .grip-dots {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.drag-handle-bar .grip-dots span {
+  display: flex;
+  gap: 3px;
+}
+
+.drag-handle-bar .grip-dots span::before,
+.drag-handle-bar .grip-dots span::after {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+}
+
+.bouncy-arrow {
+  width: 24px; height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bounce-down 0.7s cubic-bezier(0.34,1.56,0.64,1) infinite;
+}
+
+.bouncy-arrow::after {
+  content: '';
+  display: block;
+  width: 12px; height: 12px;
+  border-right: 3px solid #fff;
+  border-bottom: 3px solid #fff;
+  transform: rotate(45deg);
+  margin-top: -4px;
+}
+
+@keyframes bounce-down {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+@keyframes handle-pulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(30, 136, 229, 0.4), inset 0 1px 0 rgba(255,255,255,0.25); }
+  50% { box-shadow: 0 4px 24px rgba(30, 136, 229, 0.6), inset 0 1px 0 rgba(255,255,255,0.25), 0 0 0 4px rgba(66, 165, 245, 0.15); }
+}
+
+/* ============================================================
+   BUCKET BAR
+   ============================================================ */
+#bucket-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--bucket-height);
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px 8px;
+  z-index: 20;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.15) 100%);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+}
+
+.state-title-screen #bucket-bar,
+.state-game-over #bucket-bar {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.bucket {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+  cursor: default;
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), filter 0.2s;
+  gap: 2px;
+}
+
+/* Bucket body - 3D trapezoid bin shape */
+.bucket-body {
+  position: absolute;
+  bottom: 0; left: 8%; right: 8%;
+  height: 80%;
+  border-radius: 4px 4px 10px 10px;
+  border: 3px solid #333;
+  border-top: none;
+  overflow: hidden;
+  /* Trapezoid: wider at top, narrower at bottom via perspective */
+  clip-path: polygon(0% 0%, 100% 0%, 92% 100%, 8% 100%);
+}
+
+.bucket-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.25;
+  background: linear-gradient(90deg, rgba(255,255,255,0.4) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.15) 100%);
+}
+
+/* Bucket rim - the top edge */
+.bucket-rim {
+  position: absolute;
+  top: 12%; left: 2%; right: 2%;
+  height: 10px;
+  border-radius: 5px;
+  border: 3px solid #333;
+  z-index: 2;
+}
+
+/* Handle arc */
+.bucket-handle {
+  position: absolute;
+  top: -2px; left: 25%; right: 25%;
+  height: 16px;
+  border: 3px solid #555;
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  z-index: 1;
+}
+
+.bucket[data-category="algemeen"] .bucket-body { background: var(--bucket-algemeen); }
+.bucket[data-category="algemeen"] .bucket-rim { background: color-mix(in srgb, var(--bucket-algemeen), white 20%); }
+.bucket[data-category="intern"] .bucket-body { background: var(--bucket-intern); }
+.bucket[data-category="intern"] .bucket-rim { background: color-mix(in srgb, var(--bucket-intern), white 20%); }
+.bucket[data-category="vertrouwelijk"] .bucket-body { background: var(--bucket-vertrouwelijk); }
+.bucket[data-category="vertrouwelijk"] .bucket-rim { background: color-mix(in srgb, var(--bucket-vertrouwelijk), white 20%); }
+.bucket[data-category="dep-v"] .bucket-body { background: var(--bucket-dep-v); }
+.bucket[data-category="dep-v"] .bucket-rim { background: color-mix(in srgb, var(--bucket-dep-v), white 20%); }
+.bucket[data-category="staatsgeheim"] .bucket-body { background: var(--bucket-staatsgeheim); }
+.bucket[data-category="staatsgeheim"] .bucket-rim { background: color-mix(in srgb, var(--bucket-staatsgeheim), white 20%); }
+
+.bucket .bucket-icon {
+  width: 24px; height: 24px;
+  z-index: 3;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+}
+
+.bucket .bucket-icon svg {
+  width: 100%; height: 100%;
+}
+
+.bucket .bucket-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  text-align: center;
+  line-height: 1.1;
+  z-index: 3;
+}
+
+/* Bucket invite animation during drag */
+.state-dragging .bucket {
+  animation: bucket-invite 0.8s ease-in-out infinite;
+}
+
+@keyframes bucket-invite {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.bucket.hovered {
+  transform: scale(1.12) translateY(-8px) !important;
+  box-shadow: 0 0 0 3px white, 0 0 0 6px #333, 0 8px 24px rgba(0,0,0,0.3) !important;
+  animation: none !important;
+  z-index: 25;
+}
+
+/* Correct glow */
+.bucket.correct-glow {
+  box-shadow: 0 0 0 3px white, 0 0 0 6px #333, 0 0 30px 8px var(--correct-glow), 0 0 60px 16px rgba(105,240,174,0.3) !important;
+  transform: scale(1.08) !important;
+  animation: none !important;
+}
+
+/* Wrong shake on bucket */
+.bucket.wrong-shake {
+  box-shadow: 0 0 0 3px white, 0 0 0 6px var(--wrong-flash), 0 0 20px 6px rgba(255,82,82,0.4) !important;
+  animation: bucket-shake 0.4s ease both !important;
+}
+
+@keyframes bucket-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-5px) rotate(-2deg); }
+  30% { transform: translateX(5px) rotate(2deg); }
+  45% { transform: translateX(-4px) rotate(-1deg); }
+  60% { transform: translateX(4px) rotate(1deg); }
+  75% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+}
+
+/* Pulse correct answer highlight */
+.bucket.pulse-correct {
+  animation: pulse-highlight 0.5s ease-in-out 4 !important;
+  box-shadow: 0 0 0 3px white, 0 0 0 6px #333, 0 0 20px 6px var(--correct-glow) !important;
+}
+
+@keyframes pulse-highlight {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+/* Correct answer tooltip */
+.correct-tooltip {
+  position: absolute;
+  top: -36px; left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: tooltip-appear 0.3s ease-out;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.correct-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #333;
+}
+
+@keyframes tooltip-appear {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ============================================================
+   FEEDBACK OVERLAY
+   ============================================================ */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+}
+
+#feedback-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+#feedback-flash.flash-correct {
+  background: radial-gradient(circle at 50% 80%, rgba(105,240,174,0.45) 0%, transparent 65%);
+  opacity: 1;
+}
+
+#feedback-flash.flash-wrong {
+  background: rgba(255,82,82,0.25);
+  opacity: 1;
+}
+
+/* Screen shake */
+.shaking {
+  animation: screen-shake 0.4s cubic-bezier(.36,.07,.19,.97) both !important;
+}
+
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0,0); }
+  10% { transform: translate(-6px,-3px); }
+  20% { transform: translate(6px,2px); }
+  30% { transform: translate(-4px,4px); }
+  40% { transform: translate(4px,-4px); }
+  50% { transform: translate(-3px,2px); }
+  60% { transform: translate(3px,-2px); }
+  70% { transform: translate(-2px,3px); }
+  80% { transform: translate(2px,-1px); }
+  90% { transform: translate(-1px,1px); }
+}
+
+/* ============================================================
+   HUD
+   ============================================================ */
+#hud {
+  position: fixed;
+  top: 12px; left: 12px; right: 12px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 35;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+.state-title-screen #hud,
+.state-game-over #hud {
+  opacity: 0;
+}
+
+.hud-item {
+  background: rgba(0,0,0,0.55);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+  border: 2px solid rgba(255,255,255,0.15);
+}
+
+.hud-item .value {
+  color: #FFD54F;
+}
+
+/* Timer warning/danger states */
+#timer-hud-item.timer-warning {
+  border-color: rgba(255, 193, 7, 0.6);
+  background: rgba(255, 193, 7, 0.35);
+}
+
+#timer-hud-item.timer-danger {
+  border-color: rgba(239, 83, 80, 0.6);
+  background: rgba(239, 83, 80, 0.4);
+  animation: timer-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Mute button */
+#mute-btn {
+  position: fixed;
+  top: 50px;
+  right: 12px;
+  z-index: 36;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: opacity 0.4s, transform 0.15s;
+  line-height: 1;
+  padding: 0;
+}
+
+#mute-btn:hover { transform: scale(1.1); }
+#mute-btn:active { transform: scale(0.95); }
+
+.state-title-screen #mute-btn,
+.state-game-over #mute-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Points popup */
+.points-popup {
+  position: fixed;
+  font-size: 1.4rem;
+  font-weight: 900;
+  pointer-events: none;
+  z-index: 50;
+  animation: points-fly 1s ease-out forwards;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.points-popup.positive { color: var(--correct-glow); }
+.points-popup.negative { color: var(--wrong-flash); }
+
+@keyframes points-fly {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.3); }
+}
+
+/* ============================================================
+   START SCREEN
+   ============================================================ */
+#start-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.5s, visibility 0.5s;
+}
+
+#start-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.start-title-svg {
+  max-width: min(700px, 95vw);
+  height: auto;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 4px 0 #333) drop-shadow(0 8px 24px rgba(0,0,0,0.35));
+}
+
+.start-subtitle {
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 32px;
+  text-align: center;
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+.start-credits {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  margin-top: 24px;
+  max-width: 360px;
+  line-height: 1.4;
+}
+
+/* Name input */
+.name-input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.name-input-group label {
+  color: rgba(255,255,255,0.8);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.name-input-group input {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--font-main);
+  border: 3px solid #333;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.95);
+  color: #333;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.name-input-group input:focus {
+  border-color: #66BB6A;
+  box-shadow: 0 0 0 3px rgba(102,187,106,0.3);
+}
+
+.name-input-group input::placeholder {
+  color: #aaa;
+  font-weight: 400;
+}
+
+.start-error {
+  color: #FF6B6B;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 8px;
+  min-height: 1.2em;
+}
+
+.start-btn {
+  padding: 14px 48px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: white;
+  background: linear-gradient(180deg, #66BB6A, #43A047);
+  border: 3px solid #333;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #2E7D32, 0 6px 16px rgba(0,0,0,0.3);
+  transition: transform 0.1s, box-shadow 0.1s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #2E7D32, 0 8px 20px rgba(0,0,0,0.35);
+}
+
+.start-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #2E7D32, 0 3px 8px rgba(0,0,0,0.3);
+}
+
+/* ============================================================
+   END SCREEN
+   ============================================================ */
+#end-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.5s, visibility 0.5s;
+  overflow-y: auto;
+  padding: 20px 0;
+  gap: 2px;
+}
+
+#end-screen.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Pass/Fail badge */
+.end-pass-fail {
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 6px 28px;
+  border-radius: 30px;
+  border: 3px solid rgba(0,0,0,0.2);
+  margin-bottom: 10px;
+}
+
+.end-pass-fail.passed {
+  background: linear-gradient(180deg, #66BB6A, #43A047);
+  color: white;
+  box-shadow: 0 0 20px rgba(102,187,106,0.4);
+}
+
+.end-pass-fail.failed {
+  background: linear-gradient(180deg, #EF5350, #C62828);
+  color: white;
+  box-shadow: 0 0 20px rgba(239,83,80,0.4);
+}
+
+.end-title {
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 2px 0 #333;
+  margin-bottom: 4px;
+}
+
+.end-percentage {
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 900;
+  color: #FFD54F;
+  text-shadow: 0 3px 0 rgba(0,0,0,0.3);
+  line-height: 1.1;
+}
+
+.end-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 16px;
+}
+
+.end-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+  max-width: 500px;
+  width: 92%;
+}
+
+.stat-box .stat-value.negative { color: #FF8A80; }
+.stat-box .stat-value.positive { color: #69F0AE; }
+
+.stat-box {
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-box .stat-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #FFD54F;
+  display: block;
+}
+
+.stat-box .stat-label {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.restart-btn {
+  padding: 12px 40px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: white;
+  background: linear-gradient(180deg, #42A5F5, #1E88E5);
+  border: 3px solid #333;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #1565C0, 0 6px 16px rgba(0,0,0,0.3);
+  transition: transform 0.1s, box-shadow 0.1s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.restart-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #1565C0, 0 8px 20px rgba(0,0,0,0.35);
+}
+
+.restart-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1565C0, 0 3px 8px rgba(0,0,0,0.3);
+}
+
+/* Leaderboard */
+.leaderboard-section {
+  width: 90%;
+  max-width: 380px;
+  margin-bottom: 18px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.leaderboard-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.9);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.leaderboard-status {
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.78rem;
+  padding: 8px 0;
+}
+
+.leaderboard-table {
+  width: 100%;
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 8px;
+  margin-bottom: 3px;
+  font-size: 0.78rem;
+  color: white;
+  background: rgba(255,255,255,0.08);
+  gap: 8px;
+}
+
+.lb-row.lb-highlight {
+  background: rgba(255,215,0,0.18);
+  border: 1px solid rgba(255,215,0,0.3);
+  font-weight: 700;
+}
+
+.lb-rank {
+  width: 24px;
+  font-weight: 800;
+  color: #FFD54F;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lb-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lb-pct {
+  width: 44px;
+  text-align: right;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.lb-pass {
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  :root {
+    --bucket-height: 85px;
+    --flying-doc-size: 55px;
+  }
+  .bucket .bucket-label { font-size: 0.82rem; }
+  .bucket .bucket-icon { width: 22px; height: 22px; }
+  #bucket-bar { gap: 3px; padding: 4px 4px 6px; }
+  #doc-card { padding: 20px 16px 14px; max-height: 50vh; }
+  #doc-title { font-size: 1rem; }
+  .drag-handle-bar { padding: 10px 20px; font-size: 0.8rem; gap: 8px; }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --bucket-height: 72px;
+    --flying-doc-size: 48px;
+  }
+  .bucket .bucket-label { font-size: 0.72rem; }
+  .hud-item { font-size: 0.7rem; padding: 4px 10px; }
+  .drag-handle-bar { padding: 8px 14px; font-size: 0.75rem; gap: 6px; }
+  .drag-handle-bar .grip-dots { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="game-container" class="state-title-screen">
+
+  <!-- BACKGROUND -->
+  <div id="bg-layer">
+    <div id="sky"></div>
+
+    <svg id="sun" viewBox="0 0 100 100">
+      <g class="sun-rays">
+        <line class="sun-ray" x1="50" y1="8" x2="50" y2="0" />
+        <line class="sun-ray" x1="79" y1="21" x2="85" y2="15" />
+        <line class="sun-ray" x1="92" y1="50" x2="100" y2="50" />
+        <line class="sun-ray" x1="79" y1="79" x2="85" y2="85" />
+        <line class="sun-ray" x1="50" y1="92" x2="50" y2="100" />
+        <line class="sun-ray" x1="21" y1="79" x2="15" y2="85" />
+        <line class="sun-ray" x1="8" y1="50" x2="0" y2="50" />
+        <line class="sun-ray" x1="21" y1="21" x2="15" y2="15" />
+      </g>
+      <circle class="sun-body" cx="50" cy="50" r="22" />
+    </svg>
+
+    <div id="clouds"></div>
+
+    <div id="hills-far">
+      <svg viewBox="0 0 2000 200" preserveAspectRatio="none">
+        <path d="M0,200 L0,120 Q100,40 200,100 Q350,30 500,90 Q600,50 750,110 Q900,30 1000,100 Q1100,40 1200,90 Q1350,30 1500,110 Q1650,50 1750,90 Q1900,40 2000,100 L2000,200Z" fill="#81C784"/>
+      </svg>
+    </div>
+
+    <div id="hills-near">
+      <svg viewBox="0 0 2000 180" preserveAspectRatio="none">
+        <path d="M0,180 L0,100 Q150,30 300,80 Q450,20 600,90 Q700,40 850,70 Q1000,20 1150,90 Q1300,30 1450,80 Q1600,20 1750,70 Q1850,40 2000,90 L2000,180Z" fill="#43A047"/>
+      </svg>
+    </div>
+
+    <div id="ground"></div>
+  </div>
+
+  <!-- FLYING ZONE -->
+  <div id="flying-zone"></div>
+
+  <!-- DOCUMENT OVERLAY -->
+  <div id="doc-overlay">
+    <div id="doc-card">
+      <button id="hint-btn" class="hint-btn">&#128161; Hint</button>
+      <div id="hint-result" class="hint-result"></div>
+      <div class="doc-classification-badge" id="doc-badge">CLASSIFICATIE</div>
+      <h2 id="doc-title">Documenttitel</h2>
+      <p id="doc-description">Beschrijving</p>
+      <div id="doc-body">Documentinhoud wordt geladen...</div>
+      <div id="drag-hint">
+        <div class="drag-handle-bar">
+          <div class="grip-dots"><span></span><span></span><span></span></div>
+          <div class="bouncy-arrow"></div>
+          <span>Sleep naar de juiste map</span>
+          <div class="bouncy-arrow"></div>
+          <div class="grip-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUCKET BAR -->
+  <div id="bucket-bar">
+    <div class="bucket" data-category="algemeen">
+      <div class="bucket-handle"></div>
+      <div class="bucket-rim"></div>
+      <div class="bucket-body"></div>
+      <div class="bucket-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+        </svg>
+      </div>
+      <span class="bucket-label">Algemeen</span>
+    </div>
+    <div class="bucket" data-category="intern">
+      <div class="bucket-handle"></div>
+      <div class="bucket-rim"></div>
+      <div class="bucket-body"></div>
+      <div class="bucket-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <span class="bucket-label">Intern</span>
+    </div>
+    <div class="bucket" data-category="vertrouwelijk">
+      <div class="bucket-handle"></div>
+      <div class="bucket-rim"></div>
+      <div class="bucket-body"></div>
+      <div class="bucket-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+      </div>
+      <span class="bucket-label">Vertrouwelijk</span>
+    </div>
+    <div class="bucket" data-category="dep-v">
+      <div class="bucket-handle"></div>
+      <div class="bucket-rim"></div>
+      <div class="bucket-body"></div>
+      <div class="bucket-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <span class="bucket-label">Dep.V.</span>
+    </div>
+    <div class="bucket" data-category="staatsgeheim">
+      <div class="bucket-handle"></div>
+      <div class="bucket-rim"></div>
+      <div class="bucket-body"></div>
+      <div class="bucket-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <span class="bucket-label">Staatsgeheim</span>
+    </div>
+  </div>
+
+  <!-- FEEDBACK -->
+  <canvas id="confetti-canvas"></canvas>
+  <div id="feedback-flash"></div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-item">Score: <span class="value" id="score-display">0</span></div>
+    <div class="hud-item"><span id="progress-display">0</span> / 30</div>
+    <div class="hud-item" id="timer-hud-item">&#9201; <span class="value" id="timer-display">10:00</span></div>
+  </div>
+  <button id="mute-btn" title="Geluid aan/uit">&#128266;</button>
+
+  <!-- START SCREEN -->
+  <div id="start-screen">
+    <svg class="start-title-svg" viewBox="0 0 700 130" aria-label="The Label Game">
+      <defs><path id="arch-path" d="M 20,115 Q 350,5 680,115" fill="transparent"/></defs>
+      <text font-size="64" font-weight="900" fill="white" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" letter-spacing="4">
+        <textPath href="#arch-path" startOffset="50%" text-anchor="middle">The Label Game</textPath>
+      </text>
+    </svg>
+    <div class="start-subtitle">Klik op vliegende documenten, lees de inhoud en sleep ze naar de juiste classificatiemap. Je hebt minimaal 22 van de 30 documenten goed nodig om te slagen! Hoe sneller je bent, hoe meer punten je kunt verdienen.</div>
+    <div class="name-input-group">
+      <label for="player-name">Jouw naam:</label>
+      <input type="text" id="player-name" placeholder="Vul je naam in..." maxlength="30" autocomplete="off" />
+    </div>
+    <div class="name-input-group">
+      <label for="player-password">Wachtwoord:</label>
+      <input type="password" id="player-password" placeholder="Voer het wachtwoord in..." maxlength="40" autocomplete="off" />
+    </div>
+    <button class="start-btn" id="start-btn">Start Spel</button>
+    <div class="start-error" id="start-error"></div>
+    <div class="start-credits">Released by Jelmar Groot under an MIT license. Music by Jelmar Groot.</div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen">
+    <div class="end-pass-fail" id="end-pass-fail">GESLAAGD</div>
+    <div class="end-title" id="end-player-name">Speler</div>
+    <div class="end-percentage" id="end-score-display">0 pts</div>
+    <div class="end-subtitle" id="end-subtitle">22 van 30 goed</div>
+    <div class="end-stats">
+      <div class="stat-box">
+        <span class="stat-value" id="end-correct">0</span>
+        <span class="stat-label">Goed</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value" id="end-wrong">0</span>
+        <span class="stat-label">Fout</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value" id="end-base-points">0</span>
+        <span class="stat-label">Basispunten</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value negative" id="end-hint-penalty">0</span>
+        <span class="stat-label">Hintaftrek</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value positive" id="end-time-bonus">0</span>
+        <span class="stat-label">Tijdbonus</span>
+      </div>
+    </div>
+    <div class="leaderboard-section" id="leaderboard-section">
+      <div class="leaderboard-title">Scorebord</div>
+      <div class="leaderboard-status" id="leaderboard-status">Laden...</div>
+      <div class="leaderboard-table" id="leaderboard-table"></div>
+    </div>
+    <button class="restart-btn" id="restart-btn">Opnieuw Spelen</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DOCUMENT DATABASE (ADMIN CONFIGURABLE)
+   ============================================================ */
+const DOCUMENTS = [
+  // ── Algemeen (6) ──────────────────────────────────
+  {
+    id: 1,
+    title: "Openbare Veilingcatalogus",
+    description: "Overtollig kantoormeubilair en niet-gevoelige voertuigen te koop.",
+    classification: "algemeen",
+    hint: "We willen juist dat mensen dit zien zodat ze onze overtollige spullen kopen! Er is nul risico als dit gedeeld wordt.",
+    body: 'Kavel 041: 12x bureau (beuken, 160cm), startbod €25 per stuk. Kavel 042: 3x Volkswagen Transporter 2018, kilometerstand 120.000km, startbod €4.500. Kavel 043: 50x ergonomische bureaustoelen. Alle kavels zijn beschikbaar voor publieke bezichtiging bij het depot Soesterberg. Reserveren is niet nodig.'
+  },
+  {
+    id: 2,
+    title: "Handleiding Koperregistratie",
+    description: "Instructies voor burgers om een account aan te maken.",
+    classification: "algemeen",
+    hint: "Hier staan geen gevoelige gegevens in; het is gewoon een instructie bedoeld voor gewone burgers.",
+    body: 'Om deel te nemen aan onze veilingen, ga naar www.domeinenroerende-zaken.nl en klik op "Registreren". U heeft een geldig e-mailadres en een Nederlands postadres nodig. Verificatie geschiedt via een e-maillink. Na registratie kunt u alle openbare catalogi bekijken en online biedingen plaatsen.'
+  },
+  {
+    id: 3,
+    title: "Duurzaamheids\u00ADjaarverslag",
+    description: "Openbare samenvatting van gerecycled afval.",
+    classification: "algemeen",
+    hint: "Dit is pure PR en transparantie. Als dit voortijdig uitlekt, maken we alleen maar reclame voor onze recycling.",
+    body: 'In 2024 heeft DRZ 14.200 ton overtollig materiaal verwerkt. Hiervan werd 87% gerecycled of hergebruikt. 1.340 voertuigen zijn openbaar geveild, waardoor de afvalberg met naar schatting 2.100 ton is verminderd. Op drie depotlocaties zijn zonnepanelen geplaatst, wat de energiekosten met 22% heeft verlaagd.'
+  },
+  {
+    id: 4,
+    title: "Schema Kijkdagen",
+    description: "Data en tijden voor publieke bezichtigingen in Soesterberg.",
+    classification: "algemeen",
+    hint: "Iedereen kan op deze dagen zomaar vanaf de straat binnenlopen. Er is absoluut geen geheim om te bewaren.",
+    body: 'Kijkdagen Q1 2025: 15 januari (09:00\u201316:00), 12 februari (09:00\u201316:00), 19 maart (09:00\u201316:00). Locatie: Depot Soesterberg, Banningstraat 8. Gratis toegang, neem een geldig identiteitsbewijs mee voor toegang tot het terrein. Fotograferen is toegestaan in de openbare tentoonstellingshal.'
+  },
+  {
+    id: 5,
+    title: "Algemene Voorwaarden",
+    description: "Juridische voorwaarden voor overheidskopers.",
+    classification: "algemeen",
+    hint: "Dit is standaard juridische tekst die elke koper toch al moet accepteren en doorlezen.",
+    body: 'Artikel 1: Alle goederen worden verkocht in de staat waarin ze zich bevinden, zonder garantie. Artikel 2: Betaling dient binnen 5 werkdagen na facturering te worden voldaan. Artikel 3: Kopers zijn verantwoordelijk voor transport en ophaling. Artikel 4: DRZ behoudt het recht kavels v\u00F3\u00F3r sluiting van de veiling in te trekken. Artikel 5: Geschillen vallen onder Nederlands recht.'
+  },
+  {
+    id: 6,
+    title: "Persbericht Recordverkoop",
+    description: "Nieuwsbericht over een veiling van een oldtimer.",
+    classification: "algemeen",
+    hint: "We hebben dit specifiek geschreven om naar de kranten te sturen. Geen enkele schade mogelijk.",
+    body: 'PERSBERICHT \u2014 Een Mercedes-Benz 450 SL uit 1978, voorheen onderdeel van een overheids\u00ADwagenpark, is afgelopen vrijdag voor een recordbedrag van \u20AC34.500 verkocht op de DRZ-veiling. De veiling trok 238 geregistreerde bieders. "Dit laat de sterke publieke belangstelling voor onze veilingen zien," aldus DRZ-woordvoerder Marieke de Vries.'
+  },
+
+  // ── Intern (6) ────────────────────────────────────
+  {
+    id: 7,
+    title: "Kantinerooster",
+    description: "Weekschema voor de personeelskantine.",
+    classification: "intern",
+    hint: "Uitlekken leidt niet tot een rechtszaak, maar collega\u2019s vinden het misschien vervelend als buitenstaanders weten wat we lunchen.",
+    body: 'Week 12 kantineschema: Maandag \u2014 Tomatensoep + broodjes. Dinsdag \u2014 Pastadag. Woensdag \u2014 Stamppot. Donderdag \u2014 Wraps. Vrijdag \u2014 Verrassingslunch. Lunch wordt geserveerd van 12:00\u201313:00. Meld dieetvoorkeuren uiterlijk donderdag aan via het intranetportaal.'
+  },
+  {
+    id: 8,
+    title: "Handleiding Softwareportaal",
+    description: "Gebruikershandleiding voor het interne DRZ-portaal.",
+    classification: "intern",
+    hint: "Geen staatsgeheim, maar specifiek voor onze werkplek en volkomen nutteloos voor het grote publiek.",
+    body: 'Hoofdstuk 3: Inloggen op het DRZ-portaal. Open uw browser en ga naar intranet.drz.minfin.nl. Gebruik uw RijksID-inloggegevens om in te loggen. Bij een "Toegang geweigerd"-melding kunt u contact opnemen met de ICT-helpdesk via toestel 4500. Zorg dat uw VPN actief is bij thuiswerken.'
+  },
+  {
+    id: 9,
+    title: "Notulen Teamoverleg",
+    description: "Notulen over vervanging kantoorprinters.",
+    classification: "intern",
+    hint: "Gewoon alledaags geklets over het upgraden van printers. Een beetje g\u00EAnant als het openbaar wordt, maar geen echte schade.",
+    body: 'Vergadering 14 maart 2025, aanwezigen: team Logistiek. Agendapunt 1: De Ricoh-printers op verdieping 2 worden in april vervangen door HP LaserJet-apparaten. Punt 2: Parkeervergunningen voor het nieuwe terrein zijn verkrijgbaar bij de receptie. Punt 3: Teamuitje is gepland in juni, suggesties welkom per e-mail.'
+  },
+  {
+    id: 10,
+    title: "Schoonmaakrooster Gebouwen",
+    description: "Onderhoudsplanning voor magazijnvloeren.",
+    classification: "intern",
+    hint: "Weten wanneer de vloeren precies worden gedweild, is puur een operationeel detail voor ons eigen personeel.",
+    body: 'Magazijn A: grondige schoonmaak elke dinsdag en vrijdag, 06:00\u201308:00. Magazijn B: wekelijks op donderdag. Kantoorvloeren: dagelijks stofzuigen, tweewekelijks dweilen. Het schoonmaakteam dient lekkages direct te melden via het facilitair beheerformulier op het intranet. Benodigdheden liggen opgeslagen in ruimte K-01.'
+  },
+  {
+    id: 11,
+    title: "Concept Interne Vacature",
+    description: "Functiebeschrijving v\u00F3\u00F3r publicatie.",
+    classification: "intern",
+    hint: "Het is nog niet openbaar. Een lek verstoort hooguit de planning van HR, maar kost de organisatie verder geen geld.",
+    body: 'CONCEPT \u2014 Vacature: Senior Veilingco\u00F6rdinator, 36 uur/week, salarisschaal 10. Locatie: Soesterberg. Eisen: WO-niveau, 3+ jaar ervaring in logistiek of publieke sector. Let op: deze vacature wacht op goedkeuring van HR en wordt na beoordeling gepubliceerd op Werken voor Nederland.'
+  },
+  {
+    id: 12,
+    title: "Onboarding-presentatie Nieuwe Medewerkers",
+    description: "Standaard introductie\u00ADslides voor nieuwe collega\u2019s.",
+    classification: "intern",
+    hint: "Dit bevat onze interne kantoorcultuur en regels. Onschuldig, maar alleen bedoeld voor de ogen van ons eigen team.",
+    body: 'Slide 4: Onze Kernwaarden \u2014 Transparantie, Integriteit, Effici\u00EBntie. Slide 5: Werktijden zijn 08:30\u201317:00, flexibel binnen de kerntijden 09:30\u201315:30. Slide 6: Uw eerste week omvat: IT-configuratie (dag 1), teamintroductie (dag 2), buddyprogramma (dag 3\u20135). Neem contact op met HR via hr@drz.minfin.nl bij vragen.'
+  },
+
+  // ── Vertrouwelijk (6) ─────────────────────────────
+  {
+    id: 13,
+    title: "Persoonsgegevens Winnende Bieder",
+    description: "Namen, BSN-nummers en bankgegevens van kopers.",
+    classification: "vertrouwelijk",
+    hint: "Denk aan de AVG! Als dit uitlekt, schenden we de privacy van burgers (BSN, bankrekeningen) en riskeren we flinke boetes.",
+    body: 'Veiling 2025-0892, gegevens winnende bieder: <b>J.P. van der Berg, BSN 928.41.723</b>, woonachtig op <b>Keizersgracht 412, 1016 GC Amsterdam</b>. Betaling via <b>IBAN NL91 ABNA 0417 1643 00</b>. Bod: \u20AC12.750 voor Kavel 089 (Audi A6 Avant). Identiteit geverifieerd via paspoort <b>NW82P1KR4</b>.'
+  },
+  {
+    id: 14,
+    title: "Individuele Functionerings\u00ADgesprekken",
+    description: "HR-dossiers van veilingmeesters/managers.",
+    classification: "vertrouwelijk",
+    hint: "Het uitlekken van HR-dossiers schaadt het vertrouwen van werknemers ernstig en is een harde schending van de privacywet.",
+    body: 'Jaarbeoordeling 2024 \u2014 Medewerker: <b>R. Bakker, personeelsnummer 40921</b>. Totaalbeoordeling: Voldoende. Sterke punten: goede communicatie met klanten, punctueel. Ontwikkelpunten: <b>tijdmanagement onder druk, twee formele waarschuwingen wegens late rapportage</b>. Aanbeveling leidinggevende: contract verlengen met verbeterplan. <b>Salaris: \u20AC4.280/maand</b>.'
+  },
+  {
+    id: 15,
+    title: "Beveiligingscontract Particuliere Bewaking",
+    description: "Gedetailleerde prijsstelling en SLA\u2019s met beveiligingsfirma.",
+    classification: "vertrouwelijk",
+    hint: "Dit bevat gevoelige commerci\u00EBle tarieven. Als een concurrent dit ziet, schaadt dat onze financi\u00EBle onderhandelingspositie.",
+    body: 'Contract SC-2025-114 tussen DRZ en SecureForce B.V. Looptijd: 3 jaar. <b>Jaarlijkse vergoeding: \u20AC892.000</b>. SLA: reactietijd op alarmen \u2264 8 minuten. <b>Bewakingsroutes: Depot A zuidingang elke 45 min, Depot B perimeter elke 30 min</b>. Boeteclausule: \u20AC5.000 per SLA-schending. Ondertekend door <b>directeur P. de Groot</b>.'
+  },
+  {
+    id: 16,
+    title: "Taxatierapport In Beslag Genomen Jacht",
+    description: "Financi\u00EBle waardering van een priv\u00E9bezit.",
+    classification: "vertrouwelijk",
+    hint: "Dit zijn gedetailleerde financi\u00EBle gegevens van een particulier. Uitlekken veroorzaakt persoonlijke financi\u00EBle schade.",
+    body: 'Taxatierapport \u2014 Vaartuig: <b>M/Y "Eclipse II", 28m Sunseeker</b>, in beslag genomen onder rechterlijk bevel 2024/KG/4421. <b>Geschatte marktwaarde: \u20AC2.150.000</b>. Huidige ligplaats: <b>Marina IJmuiden, steiger 14-C</b>. Staat: goed, motoronderhoud nodig. Vorige geregistreerde eigenaar: <b>Holding Maaskant B.V., KvK 58201844</b>.'
+  },
+  {
+    id: 17,
+    title: "Interne Audit Veilingopbrengsten",
+    description: "Rapport over een discrepantie van \u20AC50.000.",
+    classification: "vertrouwelijk",
+    hint: "Er ontbreekt \u20AC50.000! Als dit uitlekt, loopt onze reputatie een flinke deuk op en riskeren we externe juridische claims.",
+    body: 'Auditreferentie: IA-2025-007. Bevinding: een <b>verschil van \u20AC50.340</b> is vastgesteld tussen geregistreerde veilingopbrengsten en bankstortingen over Q3 2024. Betrokken veilingen: 2024-0711 t/m 2024-0734. Oorzaak wordt onderzocht. <b>Vermoedelijke invoerfouten in het betalingsafstemmingssysteem</b>. Aanbeveling: volledige transactie\u00ADcontrole en dubbele goedkeuringsprocedure.'
+  },
+  {
+    id: 18,
+    title: "IT-Kwetsbaarheids\u00ADbeoordeling",
+    description: "Technische scan met benodigde databasepatches.",
+    classification: "vertrouwelijk",
+    hint: "Dit is een schatkaart voor hackers. Uitlekken vormt een groot financieel en veiligheidsrisico voor onze interne data.",
+    body: 'Scandatum: 2025-02-10. <b>Kritiek: SQL-injectie-kwetsbaarheid in veilingportaal (CVE-2024-38124)</b>. Server drz-db-prod-01 draait op <b>niet-gepatcht PostgreSQL 14.2</b>. 3 bevindingen met hoge ernst, 11 gemiddeld. <b>Beheerdersgegevens opgeslagen als platte tekst in config.yml</b>. Onmiddellijk patchen vereist v\u00F3\u00F3r de volgende veilingronde. Rapport opgesteld door: IT Security-team.'
+  },
+
+  // ── Dep.V. (6) ────────────────────────────────────
+  {
+    id: 19,
+    title: "Ontmantelingsprotocol Hennepplantages",
+    description: "Logistiek voor het veilig opruimen van illegale kwekerijen.",
+    classification: "dep-v",
+    hint: "Als criminelen dit lezen, kunnen ze onze politieacties voorspellen en zich verstoppen. Het verstoort direct de rechtsgang.",
+    body: 'Operatiedossier: <b>ontmanteling van 3 illegale hennepplantages</b> in Noord-Brabant, in beslag genomen onder bevel 2025/RB/1192. <b>Locatie 1: Industrieweg 44, Eindhoven</b> (geschat 2.400 planten). Hazmat-team vereist voor <b>verwijdering chemische meststoffen</b>. Alle in beslag genomen apparatuur naar DRZ Depot C onder politiebegeleiding. <b>Co\u00F6rdinatie met Politie eenheid Oost-Brabant</b>.'
+  },
+  {
+    id: 20,
+    title: "OM-Correspondentie Georganiseerde Misdaad",
+    description: "Brieven over beslaglegging bij High-Value Targets.",
+    classification: "dep-v",
+    hint: "Uitlekken brengt lopende inbeslagnames van het Openbaar Ministerie in gevaar. Dit schaadt direct de rechtsstaat.",
+    body: 'Brief van het Openbaar Ministerie, ref: <b>OM/HVT/2025-0044</b>. Onderwerp: bevel tot beslaglegging op bezittingen van doelwitten gelinkt aan <b>Mocro-maffia-netwerk "Operatie Heron"</b>. Bezittingen omvatten 4 panden, 7 voertuigen en <b>bankrekeningen ter waarde van \u20AC3,2 miljoen</b>. DRZ ge\u00EFnstrueerd om <b>alle items onder strikte chain-of-custody te beveiligen en te catalogiseren</b>. Niet openbaar maken aan derden.'
+  },
+  {
+    id: 21,
+    title: "Beveiligde Opslagplaats Plattegrond",
+    description: "Kaarten met blinde vlekken van camera\u2019s in kluizen.",
+    classification: "dep-v",
+    hint: "Dit toont de dode hoeken van onze camera\u2019s. Een lek helpt georganiseerde misdaad direct bij het plannen van een overval.",
+    body: 'Plattegrond ref: SEC-VAULT-2024-R3. <b>Blinde vlekken camera\'s ge\u00EFdentificeerd: gang B7 (NO-hoek), laadperron 3 (achter pilaar P12)</b>. Kluisdeur\u00ADcombinatie: elk kwartaal gerouleerd. <b>Huidig gat in bewaking: 4 min venster tussen bewakersrondes om 02:15</b>. Bewegingssensoren offline in zone D tijdens onderhoudsvenster donderdagen 22:00\u201300:00. <b>Vrijgave: alleen Dep.V.</b>'
+  },
+  {
+    id: 22,
+    title: "Logistiek Plan Groot\u00ADschalig Geld\u00ADtransport",
+    description: "Transportgegevens voor miljoenen aan in beslag genomen contanten.",
+    classification: "dep-v",
+    hint: "Dit is een recept voor een gewapende overval op onze transportteams. Het bedreigt een kerntaak van de overheid.",
+    body: 'Transportplan TP-2025-019. Lading: <b>in beslag genomen contanten ter waarde van \u20AC4,7 miljoen</b> (coupures: \u20AC500, \u20AC200, \u20AC100). <b>Route: DRZ Depot Bleiswijk \u2192 DNB Amsterdam via A4/A10</b>. Vertrek: 06:00 stipt. Begeleiding: <b>2 gepantserde voertuigen + KMar-eenheid</b>. Geen tussenstops toegestaan. GPS-tracking actief. <b>Uitwijkpunt: Shell Badhoevedorp</b>.'
+  },
+  {
+    id: 23,
+    title: "Strategie Gevaarlijk Militair Surplus",
+    description: "Vernietigingsprotocol voor giftig marine-afval.",
+    classification: "dep-v",
+    hint: "Het verkeerd omgaan met deze informatie kan leiden tot milieurampen en zware politieke gevolgen voor het Ministerie van Financi\u00EBn.",
+    body: 'Vernietigingsprotocol MIL-HAZ-2025-003. Items: <b>14 ton giftige antifouling-verf van uit dienst genomen RNLN-schepen</b>. Classificatie: <b>ADR Klasse 6.1 (giftige stoffen)</b>. Opslag: <b>bunker K-7, Marinebasis Den Helder</b>. Geautoriseerd vernietigingsbedrijf: Vopak Environmental Services. <b>Transport vereist Defensie-escorte en RIVM-melding</b>. Niet openbaar maken.'
+  },
+  {
+    id: 24,
+    title: "Rapport Fraude-onderzoek",
+    description: "Dossier over een medewerker verdacht van het tippen van kopers.",
+    classification: "dep-v",
+    hint: "Dit gaat over fraude door een medewerker. Een lek zou het strafrechtelijk onderzoek in gevaar brengen en de Minister ernstig in verlegenheid brengen.",
+    body: 'Onderzoeksreferentie: <b>BI-2025-012, VERTROUWELIJK</b>. Betrokkene: <b>medewerker M. Jansen (afd. Logistiek, personeelsnr. 30847)</b>, verdacht van het lekken van aankomende kavelgegevens aan externe koper <b>"AutoPlus Handelsbedrijf"</b>. Bewijs: <b>14 telefoongesprekken naar hetzelfde nummer voorafgaand aan 6 veilingen</b>. Aanbeveling: schorsen in afwachting van OM-verwijzing. <b>Betrokkene niet op de hoogte stellen</b>.'
+  },
+
+  // ── Staatsgeheim (6) ──────────────────────────────
+  {
+    id: 25,
+    title: "Specificaties Afgestoten F-16 Hardware",
+    description: "Gegevens over onderdelen die vernietigd moeten worden voor de NAVO.",
+    classification: "staatsgeheim",
+    hint: "Dit bevat geclassificeerde militaire data. Uitlekken brengt de NAVO-defensie en de nationale veiligheid direct in gevaar.",
+    body: 'NAVO BEPERKT \u2014 <b>F-16AM avionics module AN/APG-66(V)2 radarunit</b>, seriebatch KLu-2019-F16-044 t/m 052. <b>Cryptografische IFF-transponder\u00ADkaarten moeten worden vernietigd door verbranding (MIL-STD-882E)</b>. Overige celonderdelen vrijgegeven voor gecontroleerde verkoop. <b>Geen overdracht aan niet-NAVO-landen toegestaan</b>. Vernietiging bijgewoond door MIVD-verbindingsofficier.'
+  },
+  {
+    id: 26,
+    title: "Sanctielijst Gesanctioneerde Oligarch",
+    description: "Inventaris van bezittingen in beslag genomen onder internationale sancties.",
+    classification: "staatsgeheim",
+    hint: "Dit is gekoppeld aan internationale geopolitiek. Een lek veroorzaakt ernstige diplomatieke incidenten tussen landen.",
+    body: 'EU-Sanctieverordening 2024/1485. <b>Doelwit: Dmitri V. Sorokin, Russisch staatsburger, geb. 14-08-1967</b>. In beslag genomen bezittingen in NL: <b>Villa aan Parkweg 9, Wassenaar (waarde \u20AC8,4M)</b>, <b>Jacht "Tsarina" afgemeerd in Scheveningen</b>, <b>Picasso-schilderij "Femme Assise" in freeportopslag</b>. <b>Gezamenlijke operatie met FIOD, AIVD en EU-Raadswerkgroep</b>. Verspreiding: uitsluitend Stg.'
+  },
+  {
+    id: 27,
+    title: "AIVD/MIVD Protocol Hardware\u00ADvernietiging",
+    description: "Verwerking van black-box-technologie van inlichtingendiensten.",
+    classification: "staatsgeheim",
+    hint: "Dit raakt de inlichtingendiensten. Uitlekken brengt in gevaar hoe onze spionnen werken en het land beschermen.",
+    body: '<b>CLASSIFICATIE: STAATSGEHEIM</b>. Vernietigings\u00ADbatch SIGINT-2025-R08: <b>12x signals intelligence-ontvangers, 4x versleutelde satellietterminals, 2x netwerk\u00ADexploitatie-apparaten</b>. Herkomst: <b>AIVD technische afdeling en MIVD-eenheid JISTARC</b>. Alle items moeten <b>fysiek worden vernietigd (versnipperd + gedemagnetiseerd) bij gecertificeerde faciliteit Zoetermeer</b>. <b>Geen fotografie. Geen civiele aannemers</b>.'
+  },
+  {
+    id: 28,
+    title: "Safe House-locaties Getuigen\u00ADbescherming",
+    description: "Logistiek voor vastgoed ingezet bij getuigenbescherming.",
+    classification: "staatsgeheim",
+    hint: "Dit is letterlijk een kwestie van leven of dood. Als dit uitlekt, kunnen mensen onder staatsbescherming worden geliquideerd.",
+    body: 'Getuigenbeschermings\u00ADlogistiek, ref: <b>WP/DRZ/2025-ALFA</b>. Toegewezen gemeubileerde woningen: <b>Eenheid A: Groningen (2-kamerappartement, omgeving Zuiderpark)</b>, <b>Eenheid B: Maastricht (vrijstaande woning, Randwyck)</b>. <b>Geregistreerd onder schermentiteit "Orion Vastgoed B.V."</b> Maandelijkse huur betaald via <b>OM discretionair budget lijn 7.4.2</b>. <b>Compromittering van deze locaties brengt levens van getuigen in gevaar</b>.'
+  },
+  {
+    id: 29,
+    title: "Criminele Inlichtingen Dreigingsrapport",
+    description: "Briefing over bendes die een gewapende overval plannen op een depot.",
+    classification: "staatsgeheim",
+    hint: "Dit is zeer geheime politie-informatie (TCI). Uitlekken bedreigt de nationale veiligheid en brengt undercoveragenten in levensgevaar.",
+    body: '<b>DREIGINGSBRIEFING \u2014 URGENT</b>. Bron: <b>TCI (Team Criminele Inlichtingen)</b>, betrouwbaarheid: A2. Onderwerp: <b>leden van bende "Taghi-netwerk" plannen gewapende overval op DRZ high-value depot Bleiswijk</b>. Doelwit: <b>in beslag genomen luxe voertuigen en geldkluisopslag</b>. Geschat tijdsbestek: <b>binnen 2\u20134 weken</b>. Verdachten onder AIVD-surveillance. <b>Geen zichtbare beveiliging ophogen om doelwitten niet te alarmeren</b>.'
+  },
+  {
+    id: 30,
+    title: "Terrorismefinanciering Beslagdossier",
+    description: "Dossiers over bezittingen die lopende opsporingsmethoden onthullen.",
+    classification: "staatsgeheim",
+    hint: "Dit gaat over nationale terreurdreigingen. Een lek zou antiterrorisme-operaties verlammen en het hele land in gevaar brengen.",
+    body: '<b>CT-SEIZURE-2025-NL-009</b>. In beslag genomen bezittingen van <b>terrorisme\u00ADfinancieringsnetwerk gelinkt aan aangemerkte entiteit op UNSC 1267-lijst</b>. Items: <b>12 prepaid telefoons, 3 versleutelde laptops, \u20AC280.000 in cryptocurrency-wallets</b>. Bewijsketen onderhouden voor <b>lopende NCTV/AIVD-operatie "Schaduwberg"</b>. <b>Onthulling van beslagmethoden zou actieve infiltratie\u00ADagenten compromitteren</b>. Maximale beperking.'
+  }
+];
+
+const CLASSIFICATIONS = [
+  { id: "algemeen",       label: "Algemeen",       color: "#42A5F5" },
+  { id: "intern",         label: "Intern",         color: "#AB47BC" },
+  { id: "vertrouwelijk",  label: "Vertrouwelijk",  color: "#FFA726" },
+  { id: "dep-v",          label: "Dep.V.",         color: "#EF5350" },
+  { id: "staatsgeheim",   label: "Staatsgeheim",   color: "#EC407A" }
+];
+
+const CONFIG = {
+  spawnIntervalMs: 1800,
+  flySpeedMin: 8,
+  flySpeedMax: 14,
+  maxSimultaneousFlyers: 6,
+  flyHeightMinPct: 8,
+  flyHeightMaxPct: 52,
+  basePoints: 100,
+  hintPenalty: 50,
+  minPointsWithHint: 5,
+  feedbackDurationMs: 1800,
+  docOpenTransitionMs: 500,
+  passThreshold: 22,  // minimaal aantal goede antwoorden om te slagen
+  totalDocuments: 30,
+  gameDurationSeconds: 600, // 10 minuten
+  timeScoring: [
+    { maxElapsed: 180, points: 100 },  // 0:00 – 3:00
+    { maxElapsed: 300, points: 85 },   // 3:01 – 5:00
+    { maxElapsed: 420, points: 70 },   // 5:01 – 7:00
+    { maxElapsed: 600, points: 55 }    // 7:01 – 10:00
+  ]
+};
+
+/* ============================================================
+   GOOGLE SHEETS LEADERBOARD CONFIG
+   ============================================================
+   To set up the leaderboard:
+   1. Create a new Google Sheet
+   2. Go to Extensions > Apps Script
+   3. Paste the Apps Script code (see bottom of this file)
+   4. Deploy as Web App (execute as: Me, access: Anyone)
+   5. Paste the deployment URL below
+   ============================================================ */
+const LEADERBOARD_URL = 'https://script.google.com/macros/s/AKfycbxWLKWTJ_Q5EHiCD2ouVNd64JTz_t153iQvjzmAIRfTXOzvSUXvDPbD7ywR8hfPAUtmSg/exec'; // Paste your Google Apps Script Web App URL here
+
+/* LOREM removed - each document now has its own realistic body text */
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+function randomBetween(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getClassification(id) {
+  return CLASSIFICATIONS.find(c => c.id === id);
+}
+
+/* ============================================================
+   GENERATE CLOUDS
+   ============================================================ */
+function generateClouds() {
+  const container = document.getElementById('clouds');
+  const cloudConfigs = [];
+  for (let i = 0; i < 18; i++) {
+    cloudConfigs.push({
+      x: (i / 18) * 100,
+      y: randomBetween(5, 80),
+      w: randomBetween(60, 140),
+      h: randomBetween(30, 60)
+    });
+  }
+  cloudConfigs.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'cloud';
+    el.style.left = c.x + '%';
+    el.style.top = c.y + '%';
+    el.style.width = c.w + 'px';
+    el.style.height = c.h + 'px';
+    container.appendChild(el);
+
+    // Add puffs
+    for (let p = 0; p < 3; p++) {
+      const puff = document.createElement('div');
+      puff.className = 'cloud';
+      puff.style.left = (c.x + randomBetween(-2, 3)) + '%';
+      puff.style.top = (c.y + randomBetween(-15, 10)) + '%';
+      puff.style.width = randomBetween(40, 80) + 'px';
+      puff.style.height = randomBetween(25, 45) + 'px';
+      container.appendChild(puff);
+    }
+  });
+}
+
+/* ============================================================
+   SCORING SYSTEM
+   ============================================================ */
+class ScoringSystem {
+  constructor() { this.reset(); }
+
+  reset() {
+    this.score = 0;
+    this.correctCount = 0;
+    this.wrongCount = 0;
+    this.documentsProcessed = 0;
+    this.basePointsEarned = 0;
+    this.hintPenaltiesTotal = 0;
+    this.timeBonus = 0;
+    this.hintUsedForCurrentDoc = false;
+    this.gameStartTime = null;
+  }
+
+  startTimer() {
+    this.gameStartTime = Date.now();
+  }
+
+  getElapsedSeconds() {
+    if (!this.gameStartTime) return 0;
+    return Math.floor((Date.now() - this.gameStartTime) / 1000);
+  }
+
+  getRemainingSeconds() {
+    return Math.max(0, CONFIG.gameDurationSeconds - this.getElapsedSeconds());
+  }
+
+  isTimeUp() {
+    return this.getRemainingSeconds() <= 0;
+  }
+
+  getCurrentBasePoints() {
+    const elapsed = this.getElapsedSeconds();
+    for (const tier of CONFIG.timeScoring) {
+      if (elapsed <= tier.maxElapsed) return tier.points;
+    }
+    return CONFIG.timeScoring[CONFIG.timeScoring.length - 1].points;
+  }
+
+  addCorrect() {
+    this.correctCount++;
+    this.documentsProcessed++;
+    let points = this.getCurrentBasePoints();
+    this.basePointsEarned += points;
+    if (this.hintUsedForCurrentDoc) {
+      const penalty = Math.min(CONFIG.hintPenalty, points - CONFIG.minPointsWithHint);
+      this.hintPenaltiesTotal += penalty;
+      points -= penalty;
+    }
+    this.score += points;
+    this.hintUsedForCurrentDoc = false;
+    return points;
+  }
+
+  addWrong() {
+    this.wrongCount++;
+    this.documentsProcessed++;
+    this.hintUsedForCurrentDoc = false;
+    return 0;
+  }
+
+  useHint() {
+    this.hintUsedForCurrentDoc = true;
+  }
+
+  calculateTimeBonus() {
+    const passed = this.correctCount >= CONFIG.passThreshold;
+    if (passed && this.getRemainingSeconds() > 0) {
+      this.timeBonus = this.getRemainingSeconds();
+      this.score += this.timeBonus;
+    }
+    return this.timeBonus;
+  }
+
+  getAccuracy() {
+    if (this.documentsProcessed === 0) return 0;
+    return Math.round((this.correctCount / this.documentsProcessed) * 100);
+  }
+}
+
+/* ============================================================
+   CONFETTI SYSTEM
+   ============================================================ */
+class ConfettiSystem {
+  constructor() {
+    this.canvas = document.getElementById('confetti-canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.particles = [];
+    this._animating = false;
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+  }
+
+  resize() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
+
+  burst(x, y) {
+    const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF78C4','#A66CFF','#FFB347','#69F0AE'];
+    for (let i = 0; i < 55; i++) {
+      this.particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 14,
+        vy: -(Math.random() * 14 + 3),
+        gravity: 0.3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: randomBetween(4, 9),
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 14,
+        shape: Math.random() > 0.5 ? 'rect' : 'circle',
+        life: 1,
+        decay: 0.01 + Math.random() * 0.008
+      });
+    }
+    if (!this._animating) this.animate();
+  }
+
+  animate() {
+    this._animating = true;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.particles = this.particles.filter(p => {
+      p.vy += p.gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.rotSpeed;
+      p.life -= p.decay;
+      if (p.life <= 0) return false;
+
+      this.ctx.save();
+      this.ctx.translate(p.x, p.y);
+      this.ctx.rotate(p.rotation * Math.PI / 180);
+      this.ctx.globalAlpha = p.life;
+      this.ctx.fillStyle = p.color;
+
+      if (p.shape === 'rect') {
+        this.ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+      } else {
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+      this.ctx.restore();
+      return true;
+    });
+
+    if (this.particles.length > 0) {
+      requestAnimationFrame(() => this.animate());
+    } else {
+      this._animating = false;
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  }
+}
+
+/* ============================================================
+   AUDIO SYSTEM (Web Audio API – 8-bit sounds)
+   ============================================================ */
+class AudioSystem {
+  constructor() {
+    this.ctx = null;
+    this.muted = false;
+    this.musicGain = null;
+    this.sfxGain = null;
+    this.musicPlaying = false;
+    this._musicTimeout = null;
+  }
+
+  init() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.musicGain = this.ctx.createGain();
+    this.musicGain.gain.value = 0.12;
+    this.musicGain.connect(this.ctx.destination);
+    this.sfxGain = this.ctx.createGain();
+    this.sfxGain.gain.value = 0.25;
+    this.sfxGain.connect(this.ctx.destination);
+  }
+
+  toggleMute() {
+    this.muted = !this.muted;
+    if (this.musicGain) this.musicGain.gain.value = this.muted ? 0 : 0.12;
+    if (this.sfxGain) this.sfxGain.gain.value = this.muted ? 0 : 0.25;
+    return this.muted;
+  }
+
+  // ── Background Music (Bach × Metheny jazz-fusion bossa chiptune, 132 BPM) ──
+  startMusic() {
+    if (this.musicPlaying) return;
+    this.init();
+    this.musicPlaying = true;
+    this._playMusicLoop();
+  }
+
+  _n(type, freq, start, dur, vol, target) {
+    const osc = this.ctx.createOscillator();
+    osc.type = type;
+    osc.frequency.value = freq;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(vol, start);
+    g.gain.setValueAtTime(vol * 0.75, start + dur * 0.55);
+    g.gain.exponentialRampToValueAtTime(0.001, start + dur * 0.94);
+    osc.connect(g);
+    g.connect(target);
+    osc.start(start);
+    osc.stop(start + dur);
+  }
+
+  _vn(type, freq, start, dur, vol, target) {
+    const osc = this.ctx.createOscillator();
+    osc.type = type;
+    osc.frequency.value = freq;
+    const lfo = this.ctx.createOscillator();
+    const lg = this.ctx.createGain();
+    lfo.frequency.value = 4.8;
+    lg.gain.value = freq * 0.007;
+    lfo.connect(lg);
+    lg.connect(osc.frequency);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.001, start);
+    g.gain.linearRampToValueAtTime(vol, start + dur * 0.05);
+    g.gain.setValueAtTime(vol * 0.9, start + dur * 0.5);
+    g.gain.exponentialRampToValueAtTime(0.001, start + dur * 0.94);
+    osc.connect(g);
+    g.connect(target);
+    osc.start(start);
+    osc.stop(start + dur);
+    lfo.start(start);
+    lfo.stop(start + dur);
+  }
+
+  _kick(start, target) {
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(160, start);
+    osc.frequency.exponentialRampToValueAtTime(38, start + 0.09);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.35, start);
+    g.gain.exponentialRampToValueAtTime(0.001, start + 0.18);
+    osc.connect(g);
+    g.connect(target);
+    osc.start(start);
+    osc.stop(start + 0.2);
+  }
+
+  _rim(start, target) {
+    const osc = this.ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = 1100;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.16, start);
+    g.gain.exponentialRampToValueAtTime(0.001, start + 0.03);
+    osc.connect(g);
+    g.connect(target);
+    osc.start(start);
+    osc.stop(start + 0.04);
+  }
+
+  _shaker(start, vol, target) {
+    const sr = this.ctx.sampleRate;
+    const len = Math.floor(sr * 0.05);
+    const buf = this.ctx.createBuffer(1, len, sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const hp = this.ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 8500;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(vol, start);
+    g.gain.exponentialRampToValueAtTime(0.001, start + 0.04);
+    src.connect(hp);
+    hp.connect(g);
+    g.connect(target);
+    src.start(start);
+    src.stop(start + 0.06);
+  }
+
+  _playMusicLoop() {
+    if (!this.musicPlaying) return;
+    const t = this.ctx.currentTime + 0.05;
+    const BPM = 132;
+    const b = 60 / BPM;
+    const bars = 16;
+    const loopDur = b * 4 * bars;
+
+    // Frequency lookup
+    const F = (name) => ({
+      'C2':65.41,'D2':73.42,'Eb2':77.78,'E2':82.41,'F2':87.31,'Fs2':92.50,
+      'G2':98,'Ab2':103.83,'A2':110,'Bb2':116.54,'B2':123.47,
+      'C3':130.81,'Cs3':138.59,'D3':146.83,'Eb3':155.56,'E3':164.81,
+      'F3':174.61,'Fs3':185,'G3':196,'Ab3':207.65,'A3':220,'Bb3':233.08,'B3':246.94,
+      'C4':261.63,'Cs4':277.18,'D4':293.66,'Eb4':311.13,'E4':329.63,
+      'F4':349.23,'Fs4':369.99,'G4':392,'Ab4':415.30,'A4':440,'Bb4':466.16,'B4':493.88,
+      'C5':523.25,'Cs5':554.37,'D5':587.33,'Eb5':622.25,'E5':659.25,
+      'F5':698.46,'Fs5':739.99,'G5':783.99,'Ab5':830.61,'A5':880,'Bb5':932.33,'B5':987.77,
+      'C6':1046.5,'D6':1174.66,'E6':1318.51,
+    }[name]);
+
+    // Expressive play: [note, beatPos, dur, velocity(0-1), swing(-1 to 1)]
+    // velocity: dynamic emphasis (0.3=ghost, 0.7=normal, 1.0=accent)
+    // swing: micro-timing push/pull in fractions of a beat
+    //   positive = laid back (behind beat), negative = pushing (ahead)
+    const playExpr = (seq, type, baseVol, vib) => {
+      seq.forEach(([nm, bp, dur, vel, sw]) => {
+        const v = (vel || 0.7) * baseVol;
+        const timing = (sw || 0) * b * 0.04; // subtle: max ~4% of a beat
+        this[vib ? '_vn' : '_n'](type, F(nm), t + bp * b + timing, dur * b, v, this.musicGain);
+      });
+    };
+
+    // ═══════════════════════════════════════════════════════════════
+    // VOICE 1 — Lead melody (square + vibrato): Metheny-style
+    // Long sweeping phrases with EMOTIONAL DYNAMICS:
+    //  - Notes swell into climactic pitches (crescendo)
+    //  - Phrases taper off at ends (decrescendo)
+    //  - Subtle timing push on anticipatory notes
+    //  - Ghost notes before big arrivals
+    //  - Breath (rests) between phrases
+    // ═══════════════════════════════════════════════════════════════
+    const v1 = [
+      // Bars 1-4: Opening — tender, building. Starts soft, swells into B5.
+      ['G5',0,2.8, 0.6, 0],                         // gentle opening
+      ['A5',3,0.9, 0.7, -0.5],                      // slight push toward...
+      ['B5',4,3.8, 1.0, 0],                          // arrival! full voice
+      // (breath)
+      ['A5',8,1.8, 0.75, 0.3],                      // relaxing, laid back
+      ['G5',10,1, 0.65, 0],['E5',11,0.8, 0.5, 0],  // fading away...
+      ['D5',12,1.8, 0.45, 0.5],                     // whisper — end of phrase
+      ['E5',14,1.5, 0.6, -0.3],                     // pickup, leaning forward
+
+      // Bars 5-8: Soaring — big crescendo into D6 peak
+      ['G5',16,2.5, 0.7, 0],                        // rebuilding
+      ['B5',18.5,1.2, 0.85, -0.5],                  // pushing toward peak
+      ['D6',20,3.8, 1.0, 0],                        // CLIMAX — full power
+      // (breath)
+      ['C6',24,1.8, 0.85, 0.3],                     // still resonating
+      ['A5',26,1.5, 0.7, 0],                        // settling
+      ['G5',28,1.5, 0.55, 0.5],                     // winding down
+      ['Fs5',30,0.8, 0.4, 0],['E5',31,0.7, 0.35,0.3], // trailing off, breath
+
+      // Bars 9-12: B section — bittersweet key shift, yearning
+      // Starts intimate, builds to an aching A5
+      ['Fs5',32,3.5, 0.55, 0.5],                    // tender, laid back
+      ['E5',36,1.5, 0.5, 0.3],                      // gentle sigh
+      ['D5',38,1.5, 0.45, 0.5],                     // softest point — intimate
+      // (breath — the silence here IS emotion)
+      ['A5',40,2.8, 0.9, -0.5],                     // yearning! reaches up
+      ['G5',43,0.8, 0.65, 0],                       // pulling back
+      ['Fs5',44,1.5, 0.55, 0.3],                    // tender
+      ['E5',46,0.7, 0.4, 0],['D5',47,0.6, 0.35,0], // fading, breath
+
+      // Bars 13-16: Triumphant return — starts quiet, BIG crescendo to B5
+      ['E5',48,1.5, 0.5, 0],                        // quiet restart
+      ['G5',50,1.5, 0.7, -0.3],                     // growing
+      ['B5',52,3.5, 1.0, 0],                        // TRIUMPH — full arrival
+      // (let it ring, breath)
+      ['A5',56,1.5, 0.75, 0.3],                     // echoing
+      ['G5',58,0.8, 0.6, 0],['Fs5',59,0.6, 0.5, 0], // settling gently
+      ['E5',60,1.5, 0.45, 0.5],                     // soft landing
+      ['G5',62,1.5, 0.55, -0.3],                    // pickup for next loop
+    ];
+    playExpr(v1, 'square', 0.17, true);
+
+    // ═══════════════════════════════════════════════════════════════
+    // VOICE 2 — Counterpoint (square): Bach invention-style
+    // EMOTIONAL DYNAMICS in the running lines:
+    //  - Crescendo through ascending passages
+    //  - Decrescendo through descending passages
+    //  - Strong beats slightly accented
+    //  - Weak beats ghosted
+    //  - Phrase endings taper
+    //  - Subtle swing on off-beats
+    // ═══════════════════════════════════════════════════════════════
+    const v2 = [
+      // Bars 1-2: Ascending = crescendo, descending = decrescendo
+      ['B4',0,0.5, 0.5,0],['C5',0.5,0.5, 0.55,0.4],['D5',1,0.5, 0.65,0],['E5',1.5,0.5, 0.75,0.4],
+      ['D5',2,0.5, 0.7,0],['C5',2.5,0.5, 0.6,0.3],['B4',3,0.5, 0.5,0],['A4',3.5,0.5, 0.4,0.3],
+      ['G4',4,0.5, 0.45,0],['A4',4.5,0.5, 0.5,0.4],['B4',5,0.5, 0.6,0],['C5',5.5,0.5, 0.7,0.4],
+      ['D5',6,0.5, 0.8,0],['E5',6.5,0.5, 0.85,0.3],['Fs5',7,0.5, 0.9,0],['D5',7.5,0.5, 0.7,0.3],
+      // Bars 3-4: Long descent — gradually fading, breath at end
+      ['E5',8,0.5, 0.85,0],['D5',8.5,0.5, 0.8,0.3],['C5',9,0.5, 0.7,0],['B4',9.5,0.5, 0.65,0.3],
+      ['A4',10,0.5, 0.55,0],['G4',10.5,0.5, 0.5,0.4],['Fs4',11,0.5, 0.4,0],['E4',11.5,0.5, 0.35,0.4],
+      ['Fs4',12,0.5, 0.45,0],['G4',12.5,0.5, 0.55,0.3],['A4',13,0.5, 0.65,0],['B4',13.5,0.5, 0.7,0.3],
+      ['C5',14,0.5, 0.6,0],['B4',14.5,0.5, 0.5,0.4],['A4',15,0.5, 0.4,0],['G4',15.5,0.5, 0.3,0.3],
+
+      // Bars 5-6: Building with melody — matching its energy
+      ['B4',16,0.5, 0.55,0],['C5',16.5,0.5, 0.6,0.4],['D5',17,0.5, 0.7,0],['E5',17.5,0.5, 0.8,0.3],
+      ['Fs5',18,0.5, 0.9,0],['G5',18.5,0.5, 0.95,0.3],['A5',19,0.5, 1.0,0],['Fs5',19.5,0.5, 0.85,0.3],
+      ['G5',20,0.5, 0.9,0],['Fs5',20.5,0.5, 0.85,0.3],['E5',21,0.5, 0.75,0],['D5',21.5,0.5, 0.65,0.4],
+      ['C5',22,0.5, 0.55,0],['B4',22.5,0.5, 0.5,0.3],['A4',23,0.5, 0.4,0],['G4',23.5,0.5, 0.35,0.4],
+      // Bars 7-8: Echo of melody, then fading
+      ['E5',24,1, 0.7,0],['D5',25,0.5, 0.65,0.3],['C5',25.5,0.5, 0.55,0.3],
+      ['B4',26,0.5, 0.5,0],['C5',26.5,0.5, 0.55,0.3],['D5',27,0.5, 0.6,0],['E5',27.5,0.5, 0.65,0.3],
+      ['D5',28,0.5, 0.55,0],['C5',28.5,0.5, 0.5,0.4],['B4',29,0.5, 0.45,0],['A4',29.5,0.5, 0.4,0.4],
+      ['G4',30,0.5, 0.35,0],['A4',30.5,0.5, 0.4,0.3],['B4',31,0.5, 0.5,0],['Cs5',31.5,0.5, 0.6,-0.3],
+
+      // Bars 9-10: B section — softer, more intimate, matching melody
+      ['D4',32,0.5, 0.4,0.5],['E4',32.5,0.5, 0.45,0.3],['Fs4',33,0.5, 0.5,0],['A4',33.5,0.5, 0.55,0.4],
+      ['D5',34,0.5, 0.6,0],['Cs5',34.5,0.5, 0.55,0.3],['B4',35,0.5, 0.5,0],['A4',35.5,0.5, 0.4,0.5],
+      ['G4',36,0.5, 0.4,0.5],['A4',36.5,0.5, 0.45,0.3],['B4',37,0.5, 0.5,0],['Cs5',37.5,0.5, 0.55,0.3],
+      ['D5',38,0.5, 0.6,0],['E5',38.5,0.5, 0.65,0.3],['Fs5',39,0.5, 0.55,0],['E5',39.5,0.5, 0.45,0.4],
+      // Bars 11-12: Builds back — crescendo through chromatic line
+      ['D5',40,0.5, 0.5,0],['Cs5',40.5,0.5, 0.55,0.3],['D5',41,0.5, 0.6,0],['E5',41.5,0.5, 0.7,0.3],
+      ['Fs5',42,0.5, 0.8,0],['E5',42.5,0.5, 0.75,0.3],['D5',43,0.5, 0.65,0],['Cs5',43.5,0.5, 0.6,0.3],
+      ['B4',44,0.5, 0.5,0],['A4',44.5,0.5, 0.45,0.4],['G4',45,0.5, 0.4,0],['Fs4',45.5,0.5, 0.35,0.5],
+      ['G4',46,0.5, 0.45,0],['A4',46.5,0.5, 0.55,-0.3],['B4',47,0.5, 0.65,0],['Cs5',47.5,0.5, 0.75,-0.3],
+
+      // Bars 13-14: Return — starts soft, HUGE crescendo up
+      ['E4',48,0.5, 0.35,0],['Fs4',48.5,0.5, 0.4,0.3],['G4',49,0.5, 0.5,0],['A4',49.5,0.5, 0.6,0.3],
+      ['B4',50,0.5, 0.7,0],['C5',50.5,0.5, 0.75,0.3],['D5',51,0.5, 0.85,0],['E5',51.5,0.5, 0.9,-0.3],
+      ['Fs5',52,0.5, 1.0,0],['E5',52.5,0.5, 0.9,0.3],['D5',53,0.5, 0.8,0],['C5',53.5,0.5, 0.7,0.3],
+      ['B4',54,0.5, 0.6,0],['A4',54.5,0.5, 0.5,0.4],['G4',55,0.5, 0.4,0],['Fs4',55.5,0.5, 0.35,0.5],
+      // Bars 15-16: Gentle close, prepares loop
+      ['E4',56,0.5, 0.4,0],['G4',56.5,0.5, 0.45,0.3],['A4',57,0.5, 0.5,0],['B4',57.5,0.5, 0.55,0.3],
+      ['C5',58,0.5, 0.6,0],['D5',58.5,0.5, 0.55,0.3],['E5',59,0.5, 0.5,0],['Fs5',59.5,0.5, 0.45,0.4],
+      ['D5',60,0.5, 0.4,0],['C5',60.5,0.5, 0.38,0.3],['B4',61,0.5, 0.35,0],['A4',61.5,0.5, 0.32,0.4],
+      ['G4',62,0.5, 0.3,0.5],['A4',62.5,0.5, 0.35,0.3],['B4',63,0.5, 0.45,-0.3],['C5',63.5,0.5, 0.5,-0.3],
+    ];
+    playExpr(v2, 'square', 0.10, false);
+
+    // ═══════════════════════════════════════════════════════════════
+    // BASS (triangle) — expressive bossa bass
+    // Root notes strong, passing tones ghosted, approaches pushing
+    // ═══════════════════════════════════════════════════════════════
+    const bass = [
+      // Bars 1-2: Cmaj9 | Em7
+      ['C2',0,1, 1.0,0],['G2',1,0.5, 0.6,0.3],['C3',1.5,0.5, 0.5,0.3],['E2',2,1, 0.85,0],['G2',3,0.5, 0.5,0.3],['B2',3.5,0.5, 0.6,-0.3],
+      ['E2',4,1, 0.9,0],['B2',5,0.5, 0.55,0.3],['E2',5.5,0.5, 0.5,0.3],['G2',6,1, 0.75,0],['B2',7,0.5, 0.5,0.3],['C3',7.5,0.5, 0.6,-0.3],
+      // Bars 3-4: Am9 | D7
+      ['A2',8,1, 0.95,0],['E3',9,0.5, 0.6,0.3],['A2',9.5,0.5, 0.5,0.3],['C3',10,1, 0.8,0],['E3',11,0.5, 0.5,0.3],['Eb3',11.5,0.5, 0.55,-0.5],
+      ['D3',12,1, 0.9,0],['A2',13,0.5, 0.5,0.3],['D3',13.5,0.5, 0.55,0.3],['Fs3',14,0.5, 0.7,0],['A3',14.5,0.5, 0.6,0.3],['D3',15,0.5, 0.45,0],['C3',15.5,0.5, 0.5,-0.5],
+      // Bars 5-6: Cmaj9 | Fmaj7
+      ['C2',16,1, 1.0,0],['G2',17,0.5, 0.6,0.3],['C3',17.5,0.5, 0.55,0.3],['E3',18,0.5, 0.7,0],['G3',18.5,0.5, 0.65,0.3],['C3',19,0.5, 0.5,0],['B2',19.5,0.5, 0.55,-0.5],
+      ['F2',20,1, 0.9,0],['C3',21,0.5, 0.55,0.3],['F2',21.5,0.5, 0.5,0.3],['A2',22,1, 0.75,0],['C3',23,0.5, 0.5,0.3],['D3',23.5,0.5, 0.6,-0.3],
+      // Bars 7-8: Dm9 | G13
+      ['D3',24,1, 0.85,0],['A3',25,0.5, 0.6,0.3],['D3',25.5,0.5, 0.5,0.3],['F3',26,0.5, 0.7,0],['A3',26.5,0.5, 0.6,0.3],['D3',27,0.5, 0.45,0],['Fs2',27.5,0.5, 0.5,-0.5],
+      ['G2',28,1, 0.95,0],['D3',29,0.5, 0.55,0.3],['G2',29.5,0.5, 0.5,0.3],['B2',30,1, 0.75,0],['D3',31,0.5, 0.5,0.3],['Cs3',31.5,0.5, 0.6,-0.5],
+
+      // Bars 9-10: Dmaj9 | Bm7 — softer for B section
+      ['D3',32,1, 0.7,0.3],['A3',33,0.5, 0.45,0.4],['D3',33.5,0.5, 0.4,0.3],['Fs3',34,0.5, 0.55,0],['A3',34.5,0.5, 0.5,0.3],['D3',35,0.5, 0.4,0],['Cs3',35.5,0.5, 0.45,-0.3],
+      ['B2',36,1, 0.7,0.3],['Fs3',37,0.5, 0.45,0.4],['B2',37.5,0.5, 0.4,0.3],['D3',38,1, 0.55,0],['Fs3',39,0.5, 0.45,0.3],['A2',39.5,0.5, 0.5,-0.3],
+      // Bars 11-12: Gmaj7 | A7 — builds back
+      ['G2',40,1, 0.75,0],['D3',41,0.5, 0.5,0.3],['G2',41.5,0.5, 0.45,0.3],['B2',42,1, 0.65,0],['D3',43,0.5, 0.5,0.3],['Fs2',43.5,0.5, 0.55,-0.5],
+      ['A2',44,1, 0.85,0],['E3',45,0.5, 0.6,0.3],['A2',45.5,0.5, 0.5,0.3],['Cs3',46,0.5, 0.7,0],['E3',46.5,0.5, 0.65,0.3],['A2',47,0.5, 0.5,0],['Ab2',47.5,0.5, 0.6,-0.5],
+
+      // Bars 13-14: Return — building energy
+      ['G2',48,1, 0.9,0],['D3',49,0.5, 0.6,0.3],['G2',49.5,0.5, 0.5,0.3],['B2',50,1, 0.8,0],['D3',51,0.5, 0.55,0.3],['E3',51.5,0.5, 0.65,-0.3],
+      ['A2',52,1, 0.95,0],['E3',53,0.5, 0.6,0.3],['A2',53.5,0.5, 0.55,0.3],['C3',54,1, 0.8,0],['E3',55,0.5, 0.55,0.3],['Fs3',55.5,0.5, 0.6,-0.5],
+      // Bars 15-16: Turnaround — tapers, then pickup
+      ['F2',56,1, 0.85,0],['C3',57,0.5, 0.55,0.3],['F2',57.5,0.5, 0.5,0.3],['A2',58,0.5, 0.65,0],['C3',58.5,0.5, 0.55,0.3],['D3',59,0.5, 0.5,0],['Fs3',59.5,0.5, 0.6,-0.5],
+      ['G2',60,1, 0.75,0],['B2',61,0.5, 0.5,0.3],['D3',61.5,0.5, 0.55,0.3],['G2',62,0.5, 0.45,0.5],['A2',62.5,0.5, 0.5,0.3],['B2',63,0.5, 0.6,-0.3],['C3',63.5,0.5, 0.7,-0.5],
+    ];
+    playExpr(bass, 'triangle', 0.38, false);
+
+    // ═══════════════════════════════════════════════════════════════
+    // CHORD PAD (triangle) — Metheny synth pad with dynamic swells
+    // Crescendos and decrescendos that follow the emotional arc
+    // ═══════════════════════════════════════════════════════════════
+    const chords = [
+      [['E4','G4','B4','D5'], 0, 4, 0.6],     // Cmaj9 — gentle opening
+      [['E4','G4','B4','E5'], 4, 4, 0.75],    // Em7 — building
+      [['C4','E4','A4','B4'], 8, 4, 0.7],     // Am9 — warm
+      [['D4','Fs4','A4','C5'], 12, 4, 0.65],  // D9 — settling
+      [['E4','G4','B4','D5'], 16, 4, 0.75],   // Cmaj9 — second verse
+      [['F4','A4','C5','E5'], 20, 4, 0.9],    // Fmaj9 — swelling!
+      [['D4','F4','A4','C5'], 24, 4, 0.85],   // Dm9 — still big
+      [['G4','B4','D5','F5'], 28, 4, 0.6],    // G13 — pulling back
+
+      [['Fs4','A4','Cs5','E5'], 32, 4, 0.5],  // Dmaj9 — intimate B section
+      [['D4','Fs4','A4','Cs5'], 36, 4, 0.45], // Bm7 — softest
+      [['B3','D4','Fs4','A4'], 40, 4, 0.65],  // Gmaj7 — yearning swell
+      [['Cs4','E4','G4','Bb4'], 44, 4, 0.8],  // A7#11 — tension building
+
+      [['B3','D4','G4','A4'], 48, 4, 0.6],    // G6/9 — restart quiet
+      [['C4','E4','A4','B4'], 52, 4, 0.85],   // Am9 — growing
+      [['E4','G4','B4','D5'], 56, 4, 1.0],    // Cmaj9 — FULL bloom!
+      [['G4','B4','D5','F5'], 60, 4, 0.55],   // G13 — gentle close
+    ];
+
+    chords.forEach(([notes, bp, dur, intensity]) => {
+      const step = b * 0.5;
+      const total = Math.floor((dur * b) / step);
+      for (let i = 0; i < total; i++) {
+        const freq = F(notes[i % notes.length]);
+        const st = t + bp * b + i * step;
+        // Swell within each chord: starts softer, peaks in middle
+        const pos = i / total;
+        const swell = 0.7 + 0.3 * Math.sin(pos * Math.PI); // arc shape
+        const vol = 0.11 * intensity * swell;
+        this._n('triangle', freq, st, step * 0.8, vol, this.musicGain);
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // BOSSA NOVA / SAMBA DRUMS — with dynamic variation
+    // Builds and recedes with the musical phrases
+    // ═══════════════════════════════════════════════════════════════
+    const drumDyn = [
+      0.8,0.85,0.9,0.95, // bars 1-4: building
+      1.0,1.0,0.9,0.85,  // bars 5-8: peak then ease
+      0.65,0.6,0.7,0.85, // bars 9-12: B section — softer, builds
+      0.75,0.9,1.0,0.7,  // bars 13-16: return, climax, taper
+    ];
+
+    for (let bi = 0; bi < bars; bi++) {
+      const bt = t + bi * 4 * b;
+      const dv = drumDyn[bi];
+
+      // Kick
+      this._kick(bt, this.musicGain);
+      this._kick(bt + b * 2.5, this.musicGain);
+      if (bi % 2 === 1) this._kick(bt + b * 0.5, this.musicGain);
+
+      // Rim click — velocity-sensitive
+      this._rim(bt + b * 1.5, this.musicGain);
+      this._rim(bt + b * 3, this.musicGain);
+      this._rim(bt + b * 3.5, this.musicGain);
+
+      // Shaker — follows phrase dynamics
+      for (let s = 0; s < 16; s++) {
+        const base = (s % 4 === 2) ? 0.07 : (s % 4 === 0) ? 0.03 : 0.05;
+        this._shaker(bt + s * b * 0.25, base * dv, this.musicGain);
+      }
+    }
+
+    this._musicTimeout = setTimeout(() => this._playMusicLoop(), loopDur * 1000);
+  }
+
+  stopMusic() {
+    this.musicPlaying = false;
+    if (this._musicTimeout) {
+      clearTimeout(this._musicTimeout);
+      this._musicTimeout = null;
+    }
+  }
+
+  // ── Sound Effects ──
+  playCorrect() {
+    this.init();
+    const now = this.ctx.currentTime;
+    // Happy ascending chime: C5 → E5 → G5
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      osc.type = 'square';
+      osc.frequency.value = freq;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.28, now + i * 0.1);
+      g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.2);
+      osc.connect(g);
+      g.connect(this.sfxGain);
+      osc.start(now + i * 0.1);
+      osc.stop(now + i * 0.1 + 0.25);
+    });
+  }
+
+  playWrong() {
+    this.init();
+    const now = this.ctx.currentTime;
+    // Buzzer: descending sawtooth
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, now);
+    osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.25, now);
+    g.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+    osc.connect(g);
+    g.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.5);
+  }
+
+  playWin() {
+    this.init();
+    const now = this.ctx.currentTime;
+    // Victory fanfare: ascending arpeggio
+    [261.63, 329.63, 392, 523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      osc.type = 'square';
+      osc.frequency.value = freq;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.28, now + i * 0.12);
+      g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.12 + 0.35);
+      osc.connect(g);
+      g.connect(this.sfxGain);
+      osc.start(now + i * 0.12);
+      osc.stop(now + i * 0.12 + 0.4);
+    });
+  }
+
+  playLose() {
+    this.init();
+    const now = this.ctx.currentTime;
+    // Sad descending tones
+    [392, 349.23, 293.66, 261.63].forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.28, now + i * 0.3);
+      g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.3 + 0.4);
+      osc.connect(g);
+      g.connect(this.sfxGain);
+      osc.start(now + i * 0.3);
+      osc.stop(now + i * 0.3 + 0.5);
+    });
+  }
+}
+
+/* ============================================================
+   FEEDBACK SYSTEM
+   ============================================================ */
+class FeedbackSystem {
+  constructor(confetti) {
+    this.confetti = confetti;
+    this.flashEl = document.getElementById('feedback-flash');
+  }
+
+  showCorrect(bucketEl) {
+    bucketEl.classList.add('correct-glow');
+    setTimeout(() => bucketEl.classList.remove('correct-glow'), 1500);
+
+    this.flash('correct');
+
+    const rect = bucketEl.getBoundingClientRect();
+    this.confetti.burst(rect.left + rect.width / 2, rect.top);
+  }
+
+  showWrong(bucketEl, correctCategory) {
+    bucketEl.classList.add('wrong-shake');
+    setTimeout(() => bucketEl.classList.remove('wrong-shake'), 600);
+
+    this.flash('wrong');
+    this.shake();
+
+    const correctBucket = document.querySelector(`.bucket[data-category="${correctCategory}"]`);
+    if (correctBucket) {
+      setTimeout(() => {
+        correctBucket.classList.add('pulse-correct');
+        const tooltip = document.createElement('div');
+        tooltip.className = 'correct-tooltip';
+        const cls = getClassification(correctCategory);
+        tooltip.textContent = 'Juist: ' + (cls ? cls.label : correctCategory);
+        correctBucket.appendChild(tooltip);
+        setTimeout(() => {
+          correctBucket.classList.remove('pulse-correct');
+          tooltip.remove();
+        }, 2200);
+      }, 500);
+    }
+  }
+
+  flash(type) {
+    this.flashEl.className = '';
+    void this.flashEl.offsetWidth; // force reflow
+    this.flashEl.className = 'flash-' + type;
+    setTimeout(() => { this.flashEl.className = ''; }, 600);
+  }
+
+  shake() {
+    const c = document.getElementById('game-container');
+    c.classList.add('shaking');
+    setTimeout(() => c.classList.remove('shaking'), 450);
+  }
+
+  showPoints(points, x, y) {
+    const el = document.createElement('div');
+    el.className = 'points-popup ' + (points >= 0 ? 'positive' : 'negative');
+    el.textContent = (points >= 0 ? '+' : '') + points;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+  }
+}
+
+/* ============================================================
+   FLYING SYSTEM
+   ============================================================ */
+class FlyingSystem {
+  constructor(container, onFlyerClicked) {
+    this.container = container;
+    this.onFlyerClicked = onFlyerClicked;
+    this.activeFlyers = [];
+    this.spawnTimer = null;
+    this.allDocs = [];
+    this.processedIds = new Set();
+  }
+
+  start(docs) {
+    this.allDocs = [...docs];
+    this.processedIds = new Set();
+    this.resume();
+    this.spawnOne();
+  }
+
+  spawnOne() {
+    if (this.activeFlyers.length >= CONFIG.maxSimultaneousFlyers) return;
+
+    // Build list of docs not yet processed and not already flying
+    const flyingIds = new Set(this.activeFlyers.map(f => f.doc.id));
+    const available = this.allDocs.filter(d => !this.processedIds.has(d.id) && !flyingIds.has(d.id));
+    if (available.length === 0) return;
+
+    const doc = available[Math.floor(Math.random() * available.length)];
+
+    const el = document.createElement('div');
+    el.className = 'flying-doc';
+    const yPct = randomBetween(CONFIG.flyHeightMinPct, CONFIG.flyHeightMaxPct);
+    const speed = randomBetween(CONFIG.flySpeedMin, CONFIG.flySpeedMax);
+    el.style.setProperty('--fly-y', yPct + '%');
+    el.style.setProperty('--fly-speed', speed + 's');
+    el.dataset.docId = doc.id;
+
+    el.innerHTML = `
+      <div class="doc-body-shape"><div class="doc-lines"></div></div>
+      <div class="wing wing-left"></div>
+      <div class="wing wing-right"></div>
+    `;
+
+    el.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.onFlyerClicked(doc, el);
+    });
+
+    const onEnd = (e) => {
+      if (e.animationName === 'fly-across') {
+        this.removeFlyer(el);
+        el.removeEventListener('animationend', onEnd);
+      }
+    };
+    el.addEventListener('animationend', onEnd);
+
+    this.container.appendChild(el);
+    this.activeFlyers.push({ el, doc });
+  }
+
+  pause() {
+    clearInterval(this.spawnTimer);
+    this.spawnTimer = null;
+  }
+
+  resume() {
+    if (!this.spawnTimer) {
+      this.spawnTimer = setInterval(() => this.spawnOne(), CONFIG.spawnIntervalMs);
+    }
+  }
+
+  removeFlyer(el) {
+    el.remove();
+    this.activeFlyers = this.activeFlyers.filter(f => f.el !== el);
+  }
+
+  removeAll() {
+    clearInterval(this.spawnTimer);
+    this.spawnTimer = null;
+    this.activeFlyers.forEach(f => f.el.remove());
+    this.activeFlyers = [];
+  }
+
+  removeFlyerEl(el) {
+    this.removeFlyer(el);
+  }
+}
+
+/* ============================================================
+   DOCUMENT INSPECTOR
+   ============================================================ */
+class DocumentInspector {
+  constructor() {
+    this.overlay = document.getElementById('doc-overlay');
+    this.card = document.getElementById('doc-card');
+    this.badge = document.getElementById('doc-badge');
+    this.titleEl = document.getElementById('doc-title');
+    this.descEl = document.getElementById('doc-description');
+    this.bodyEl = document.getElementById('doc-body');
+    this.hintEl = document.getElementById('drag-hint');
+    this.isOpen = false;
+    this.currentDoc = null;
+  }
+
+  openFromFlyer(doc, flyerEl) {
+    this.currentDoc = doc;
+
+    // Populate content
+    const cls = getClassification(doc.classification);
+    this.badge.textContent = '??? CLASSIFICATIE ???';
+    this.badge.style.background = '#888';
+    this.titleEl.textContent = doc.title;
+    this.descEl.textContent = doc.description;
+    this.bodyEl.innerHTML = doc.body;
+    this.hintEl.classList.remove('visible');
+
+    // Get flyer position for animation start
+    const flyerRect = flyerEl.getBoundingClientRect();
+    const startX = flyerRect.left + flyerRect.width / 2;
+    const startY = flyerRect.top + flyerRect.height / 2;
+
+    // Remove flyer
+    flyerEl.remove();
+
+    // Position card at flyer location
+    this.card.style.transition = 'none';
+    this.card.style.left = startX + 'px';
+    this.card.style.top = startY + 'px';
+    this.card.style.transform = 'translate(-50%, -50%) scale(0.15)';
+    this.card.style.opacity = '0.4';
+    this.card.style.position = 'fixed';
+
+    this.overlay.classList.add('visible');
+
+    // Force reflow then animate to center
+    void this.card.offsetWidth;
+
+    this.card.style.transition = `transform ${CONFIG.docOpenTransitionMs}ms cubic-bezier(0.34,1.56,0.64,1), opacity ${CONFIG.docOpenTransitionMs * 0.6}ms ease, left ${CONFIG.docOpenTransitionMs}ms cubic-bezier(0.34,1.56,0.64,1), top ${CONFIG.docOpenTransitionMs}ms cubic-bezier(0.34,1.56,0.64,1)`;
+    this.card.style.left = '50%';
+    this.card.style.top = '42%';
+    this.card.style.transform = 'translate(-50%, -50%) scale(1)';
+    this.card.style.opacity = '1';
+
+    this.isOpen = true;
+
+    // Show drag hint after animation
+    setTimeout(() => {
+      this.hintEl.classList.add('visible');
+    }, CONFIG.docOpenTransitionMs + 200);
+  }
+
+  close(callback) {
+    this.hintEl.classList.remove('visible');
+    this.card.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
+    this.card.style.transform = 'translate(-50%, -50%) scale(0.1)';
+    this.card.style.opacity = '0';
+
+    setTimeout(() => {
+      this.overlay.classList.remove('visible');
+      this.isOpen = false;
+      this.currentDoc = null;
+      this.card.classList.remove('dragging');
+      if (callback) callback();
+    }, 320);
+  }
+
+  snapCardToCenter() {
+    this.card.style.transition = 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)';
+    this.card.style.left = '50%';
+    this.card.style.top = '42%';
+    this.card.style.transform = 'translate(-50%, -50%) scale(1)';
+    this.card.style.boxShadow = '';
+    this.card.classList.remove('dragging');
+  }
+}
+
+/* ============================================================
+   DRAG SYSTEM
+   ============================================================ */
+class DragSystem {
+  constructor(game) {
+    this.game = game;
+    this.isDragging = false;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this._rafPending = false;
+  }
+
+  init() {
+    const card = document.getElementById('doc-card');
+    card.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+    document.addEventListener('pointermove', (e) => this.onPointerMove(e));
+    document.addEventListener('pointerup', (e) => this.onPointerUp(e));
+    document.addEventListener('pointercancel', (e) => this.onPointerUp(e));
+  }
+
+  onPointerDown(e) {
+    if (!this.game.inspector.isOpen) return;
+    if (this.game.state !== 'INSPECTING') return;
+    // Don't start drag when clicking the hint button or hint result
+    if (e.target.closest('#hint-btn, #hint-result')) return;
+
+    const card = this.game.inspector.card;
+    const rect = card.getBoundingClientRect();
+    this.offsetX = e.clientX - rect.left - rect.width / 2;
+    this.offsetY = e.clientY - rect.top - rect.height / 2;
+
+    this.isDragging = true;
+    card.setPointerCapture(e.pointerId);
+    card.classList.add('dragging');
+    card.style.transition = 'transform 0.1s, box-shadow 0.1s';
+    card.style.boxShadow = '0 12px 48px rgba(0,0,0,0.35)';
+    card.style.transform = 'translate(-50%, -50%) scale(0.75)';
+    card.style.zIndex = '100';
+
+    this.game.setState('DRAGGING');
+  }
+
+  onPointerMove(e) {
+    if (!this.isDragging) return;
+    if (this._rafPending) return;
+    this._rafPending = true;
+
+    requestAnimationFrame(() => {
+      this._rafPending = false;
+      if (!this.isDragging) return;
+
+      const card = this.game.inspector.card;
+      const x = e.clientX - this.offsetX;
+      const y = e.clientY - this.offsetY;
+
+      card.style.transition = 'none';
+      card.style.left = x + 'px';
+      card.style.top = y + 'px';
+      card.style.transform = 'translate(-50%, -50%) scale(0.65)';
+
+      this.checkBucketHover(e.clientX, e.clientY);
+    });
+  }
+
+  onPointerUp(e) {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+
+    const card = this.game.inspector.card;
+    card.classList.remove('dragging');
+    card.style.zIndex = '31';
+
+    this.clearBucketHovers();
+
+    const bucket = this.getBucketAtPoint(e.clientX, e.clientY);
+    if (bucket) {
+      const chosen = bucket.dataset.category;
+      const correct = this.game.inspector.currentDoc.classification;
+      const rect = bucket.getBoundingClientRect();
+      this.game.handleDrop(chosen, correct, bucket, rect.left + rect.width / 2, rect.top);
+    } else {
+      this.game.inspector.snapCardToCenter();
+      this.game.setState('INSPECTING');
+    }
+  }
+
+  checkBucketHover(x, y) {
+    document.querySelectorAll('.bucket').forEach(b => {
+      const rect = b.getBoundingClientRect();
+      const over = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      b.classList.toggle('hovered', over);
+    });
+  }
+
+  clearBucketHovers() {
+    document.querySelectorAll('.bucket').forEach(b => b.classList.remove('hovered'));
+  }
+
+  getBucketAtPoint(x, y) {
+    const buckets = document.querySelectorAll('.bucket');
+    for (const b of buckets) {
+      const r = b.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return b;
+    }
+    return null;
+  }
+}
+
+/* ============================================================
+   LEADERBOARD SYSTEM (Google Sheets)
+   ============================================================ */
+class Leaderboard {
+  constructor() {
+    this.url = LEADERBOARD_URL;
+    this.enabled = !!this.url;
+  }
+
+  async submit(name, percentage, correct, total, passed, score, basePoints, hintPenalties, timeBonus, timeRemaining) {
+    if (!this.enabled) return;
+    try {
+      await fetch(this.url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'submit',
+          name,
+          percentage,
+          correct,
+          total,
+          passed,
+          score,
+          basePoints: basePoints || 0,
+          hintPenalties: hintPenalties || 0,
+          timeBonus: timeBonus || 0,
+          timeRemaining: timeRemaining || 0,
+          timestamp: new Date().toISOString()
+        })
+      });
+    } catch (e) {
+      console.warn('Leaderboard submit failed:', e);
+    }
+  }
+
+  async fetch() {
+    if (!this.enabled) return null;
+    try {
+      const res = await fetch(this.url + '?action=leaderboard&limit=20');
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      console.warn('Leaderboard fetch failed:', e);
+      return null;
+    }
+  }
+
+  renderTable(data, currentName, currentScore) {
+    const container = document.getElementById('leaderboard-table');
+    const status = document.getElementById('leaderboard-status');
+    container.innerHTML = '';
+
+    if (!data || !data.length) {
+      status.textContent = this.enabled ? 'Geen scores beschikbaar.' : 'Scorebord niet geconfigureerd.';
+      status.style.display = 'block';
+      return;
+    }
+
+    status.style.display = 'none';
+    let foundCurrent = false;
+
+    data.forEach((entry, i) => {
+      const row = document.createElement('div');
+      row.className = 'lb-row';
+      const isCurrent = entry.name === currentName && entry.score === currentScore && !foundCurrent;
+      if (isCurrent) {
+        row.classList.add('lb-highlight');
+        foundCurrent = true;
+      }
+
+      row.innerHTML = `
+        <span class="lb-rank">${i + 1}</span>
+        <span class="lb-name">${this.escapeHtml(entry.name)}</span>
+        <span class="lb-pct">${entry.score} pts</span>
+        <span class="lb-pass">${entry.passed ? '\u2705' : '\u274C'}</span>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+}
+
+/* ============================================================
+   GAME CONTROLLER
+   ============================================================ */
+class Game {
+  constructor() {
+    this.state = 'TITLE_SCREEN';
+    this.scoring = new ScoringSystem();
+    this.confetti = new ConfettiSystem();
+    this.feedback = new FeedbackSystem(this.confetti);
+    this.inspector = new DocumentInspector();
+    this.drag = new DragSystem(this);
+    this.leaderboard = new Leaderboard();
+    this.audio = new AudioSystem();
+    this.flyingSystem = new FlyingSystem(
+      document.getElementById('flying-zone'),
+      (doc, el) => this.handleFlyerClicked(doc, el)
+    );
+    this.remainingDocs = [];
+    this.processedIds = new Set();
+    this.playerName = '';
+    this.timerInterval = null;
+  }
+
+  init() {
+    generateClouds();
+    this.drag.init();
+
+    document.getElementById('start-btn').addEventListener('click', () => this.tryStart());
+    document.getElementById('restart-btn').addEventListener('click', () => this.restart());
+    document.getElementById('hint-btn').addEventListener('click', () => this.handleHint());
+    document.getElementById('mute-btn').addEventListener('click', () => {
+      const muted = this.audio.toggleMute();
+      document.getElementById('mute-btn').textContent = muted ? '\u{1F507}' : '\u{1F50A}';
+    });
+
+    // Allow Enter key to start
+    document.getElementById('player-name').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') this.tryStart();
+    });
+    document.getElementById('player-password').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') this.tryStart();
+    });
+
+    // Close doc if clicking overlay background (not the card)
+    document.getElementById('doc-overlay').addEventListener('pointerdown', (e) => {
+      if (e.target === document.getElementById('doc-overlay') && this.state === 'INSPECTING') {
+        this.closeDocument();
+      }
+    });
+  }
+
+  setState(newState) {
+    this.state = newState;
+    const container = document.getElementById('game-container');
+    container.className = 'state-' + newState.toLowerCase().replace(/_/g, '-');
+  }
+
+  tryStart() {
+    const nameInput = document.getElementById('player-name');
+    const passwordInput = document.getElementById('player-password');
+    const name = nameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!name) {
+      document.getElementById('start-error').textContent = 'Vul je naam in om te beginnen!';
+      nameInput.focus();
+      return;
+    }
+    if (!password) {
+      document.getElementById('start-error').textContent = 'Vul het wachtwoord in om te beginnen!';
+      passwordInput.focus();
+      return;
+    }
+    if (password.toLowerCase() !== 'vertrouwelijk') {
+      document.getElementById('start-error').textContent = 'Onjuist wachtwoord. Vraag het wachtwoord aan je leidinggevende.';
+      passwordInput.focus();
+      passwordInput.select();
+      return;
+    }
+    document.getElementById('start-error').textContent = '';
+    this.playerName = name;
+    this.start();
+  }
+
+  start() {
+    this.scoring.reset();
+    this.processedIds = new Set();
+    this.remainingDocs = shuffle([...DOCUMENTS]);
+    this.updateHUD();
+
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('end-screen').classList.remove('visible');
+    this.setState('FLYING');
+    this.flyingSystem.start(this.remainingDocs);
+
+    // Start global timer
+    this.scoring.startTimer();
+    this.updateTimerDisplay();
+    this.timerInterval = setInterval(() => {
+      this.updateTimerDisplay();
+      if (this.scoring.isTimeUp()) {
+        this.onTimerExpired();
+      }
+    }, 1000);
+
+    // Start music
+    this.audio.startMusic();
+  }
+
+  restart() {
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.flyingSystem.removeAll();
+    this.audio.stopMusic();
+    // Show start screen again so they can change name
+    document.getElementById('end-screen').classList.remove('visible');
+    document.getElementById('start-screen').classList.remove('hidden');
+    this.setState('TITLE_SCREEN');
+  }
+
+  onTimerExpired() {
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.flyingSystem.removeAll();
+    if (this.inspector.isOpen) {
+      this.inspector.close(() => {
+        this.showEndScreen();
+      });
+    } else {
+      this.showEndScreen();
+    }
+  }
+
+  handleFlyerClicked(doc, flyerEl) {
+    if (this.state !== 'FLYING') return;
+    if (this.processedIds.has(doc.id)) {
+      return;
+    }
+
+    // Don't pause the flying system — docs keep flying in the background
+    this.setState('INSPECTING');
+    this.inspector.openFromFlyer(doc, flyerEl);
+    this.flyingSystem.activeFlyers = this.flyingSystem.activeFlyers.filter(f => f.el !== flyerEl);
+
+    // Reset hint button for new document
+    document.getElementById('hint-btn').disabled = false;
+    document.getElementById('hint-result').textContent = '';
+    this.scoring.hintUsedForCurrentDoc = false;
+  }
+
+  handleHint() {
+    if (this.state !== 'INSPECTING') return;
+    if (this.scoring.hintUsedForCurrentDoc) return;
+
+    this.scoring.useHint();
+
+    const doc = this.inspector.currentDoc;
+    const hintResult = document.getElementById('hint-result');
+    hintResult.textContent = '💡 ' + (doc.hint || 'Geen hint beschikbaar.');
+    hintResult.style.color = '#FFD700';
+
+    document.getElementById('hint-btn').disabled = true;
+  }
+
+  closeDocument() {
+    this.inspector.close(() => {
+      this.setState('FLYING');
+    });
+  }
+
+  handleDrop(chosen, correct, bucketEl, bx, by) {
+    const isCorrect = chosen === correct;
+    this.setState('FEEDBACK');
+
+    const card = this.inspector.card;
+    const bRect = bucketEl.getBoundingClientRect();
+    card.style.transition = 'all 0.25s ease-in';
+    card.style.left = (bRect.left + bRect.width / 2) + 'px';
+    card.style.top = (bRect.top + bRect.height / 2) + 'px';
+    card.style.transform = 'translate(-50%, -50%) scale(0.08)';
+    card.style.opacity = '0.3';
+
+    setTimeout(() => {
+      if (isCorrect) {
+        const points = this.scoring.addCorrect();
+        this.feedback.showCorrect(bucketEl);
+        this.feedback.showPoints(points, bx, by - 20);
+        this.audio.playCorrect();
+      } else {
+        this.scoring.addWrong();
+        this.feedback.showWrong(bucketEl, correct);
+        this.feedback.showPoints(0, bx, by - 20);
+        this.audio.playWrong();
+      }
+
+      this.processedIds.add(this.inspector.currentDoc.id);
+      this.flyingSystem.processedIds.add(this.inspector.currentDoc.id);
+      this.updateHUD();
+
+      setTimeout(() => {
+        this.inspector.close(() => {
+          if (this.processedIds.size >= DOCUMENTS.length) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+            this.flyingSystem.pause();
+            this.showEndScreen();
+          } else {
+            this.setState('FLYING');
+          }
+        });
+      }, CONFIG.feedbackDurationMs);
+    }, 280);
+  }
+
+  updateHUD() {
+    document.getElementById('score-display').textContent = this.scoring.score;
+    document.getElementById('progress-display').textContent = this.scoring.documentsProcessed;
+  }
+
+  updateTimerDisplay() {
+    const remaining = this.scoring.getRemainingSeconds();
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+    document.getElementById('timer-display').textContent =
+      mins + ':' + String(secs).padStart(2, '0');
+
+    const timerItem = document.getElementById('timer-hud-item');
+    timerItem.classList.remove('timer-warning', 'timer-danger');
+    if (remaining <= 60) {
+      timerItem.classList.add('timer-danger');
+    } else if (remaining <= 180) {
+      timerItem.classList.add('timer-warning');
+    }
+  }
+
+  async showEndScreen() {
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.setState('GAME_OVER');
+    this.flyingSystem.removeAll();
+    this.audio.stopMusic();
+
+    const passed = this.scoring.correctCount >= CONFIG.passThreshold;
+    this.scoring.calculateTimeBonus();
+    const finalScore = this.scoring.score;
+    const pct = this.scoring.getAccuracy();
+
+    // Pass/fail badge
+    const badge = document.getElementById('end-pass-fail');
+    badge.textContent = passed ? 'GESLAAGD!' : 'NIET GESLAAGD';
+    badge.className = 'end-pass-fail ' + (passed ? 'passed' : 'failed');
+
+    // Player name
+    document.getElementById('end-player-name').textContent = this.playerName;
+
+    // Score display
+    document.getElementById('end-score-display').textContent = finalScore + ' pts';
+
+    // Subtitle
+    document.getElementById('end-subtitle').textContent =
+      `${this.scoring.correctCount} van ${CONFIG.totalDocuments} goed (minimaal ${CONFIG.passThreshold} nodig)`;
+
+    // Stats
+    document.getElementById('end-correct').textContent = this.scoring.correctCount;
+    document.getElementById('end-wrong').textContent = this.scoring.wrongCount;
+    document.getElementById('end-base-points').textContent = this.scoring.basePointsEarned;
+    document.getElementById('end-hint-penalty').textContent = '-' + this.scoring.hintPenaltiesTotal;
+    document.getElementById('end-time-bonus').textContent = '+' + this.scoring.timeBonus;
+
+    // Sound
+    if (passed) {
+      this.audio.playWin();
+    } else {
+      this.audio.playLose();
+    }
+
+    // Confetti if passed
+    if (passed) {
+      setTimeout(() => {
+        const cx = window.innerWidth / 2;
+        this.confetti.burst(cx - 100, window.innerHeight * 0.3);
+        this.confetti.burst(cx + 100, window.innerHeight * 0.3);
+      }, 600);
+    }
+
+    setTimeout(() => {
+      document.getElementById('end-screen').classList.add('visible');
+    }, 400);
+
+    // Leaderboard
+    const statusEl = document.getElementById('leaderboard-status');
+    statusEl.style.display = 'block';
+    document.getElementById('leaderboard-table').innerHTML = '';
+
+    if (this.leaderboard.enabled) {
+      statusEl.textContent = 'Score versturen...';
+      await this.leaderboard.submit(
+        this.playerName, pct, this.scoring.correctCount,
+        CONFIG.totalDocuments, passed, finalScore,
+        this.scoring.basePointsEarned,
+        this.scoring.hintPenaltiesTotal,
+        this.scoring.timeBonus,
+        this.scoring.getRemainingSeconds()
+      );
+
+      statusEl.textContent = 'Scorebord laden...';
+      const data = await this.leaderboard.fetch();
+      this.leaderboard.renderTable(data, this.playerName, finalScore);
+    } else {
+      statusEl.textContent = 'Scorebord niet geconfigureerd. Stel LEADERBOARD_URL in om scores te delen.';
+    }
+  }
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  const game = new Game();
+  game.init();
+});
+
+/* ============================================================
+   GOOGLE APPS SCRIPT FOR LEADERBOARD
+   ============================================================
+   To enable the shared leaderboard:
+
+   1. Go to https://sheets.google.com and create a new spreadsheet
+   2. Name the first sheet "Leaderboard"
+   3. Add these headers in row 1:
+      A1: Timestamp | B1: Name | C1: Percentage | D1: Correct | E1: Total | F1: Passed | G1: Score | H1: BasePoints | I1: HintPenalties | J1: TimeBonus | K1: TimeRemaining
+   4. Go to Extensions > Apps Script
+   5. Delete all existing code and paste this:
+
+   ─────────────────────────────────────────────
+   function doPost(e) {
+     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leaderboard');
+     var data = JSON.parse(e.postData.contents);
+     sheet.appendRow([
+       data.timestamp || new Date().toISOString(),
+       data.name || 'Unknown',
+       data.percentage || 0,
+       data.correct || 0,
+       data.total || 30,
+       data.passed ? 'Yes' : 'No',
+       data.score || 0,
+       data.basePoints || 0,
+       data.hintPenalties || 0,
+       data.timeBonus || 0,
+       data.timeRemaining || 0
+     ]);
+     return ContentService.createTextOutput(JSON.stringify({status: 'ok'}))
+       .setMimeType(ContentService.MimeType.JSON);
+   }
+
+   function doGet(e) {
+     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Leaderboard');
+     var rows = sheet.getDataRange().getValues();
+     var limit = parseInt(e.parameter.limit) || 20;
+
+     var entries = [];
+     for (var i = 1; i < rows.length; i++) {
+       entries.push({
+         name: rows[i][1],
+         percentage: rows[i][2],
+         correct: rows[i][3],
+         total: rows[i][4],
+         passed: rows[i][5] === 'Yes',
+         score: rows[i][6],
+         basePoints: rows[i][7] || 0,
+         hintPenalties: rows[i][8] || 0,
+         timeBonus: rows[i][9] || 0,
+         timeRemaining: rows[i][10] || 0
+       });
+     }
+     entries.sort(function(a, b) { return b.score - a.score || b.percentage - a.percentage; });
+     entries = entries.slice(0, limit);
+
+     return ContentService.createTextOutput(JSON.stringify(entries))
+       .setMimeType(ContentService.MimeType.JSON);
+   }
+   ─────────────────────────────────────────────
+
+   6. Click Deploy > New deployment
+   7. Type: Web App
+   8. Execute as: Me
+   9. Who has access: Anyone
+   10. Click Deploy and copy the URL
+   11. Paste the URL into the LEADERBOARD_URL constant above
+
+   ============================================================ */
+</script>
+</body>
+</html>
