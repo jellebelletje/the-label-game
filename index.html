@@ -20,7 +20,7 @@
   --bucket-intern: #AB47BC;
   --bucket-vertrouwelijk: #FFA726;
   --bucket-dep-v: #EF5350;
-  --bucket-staatsgeheim: #EC407A;
+  /* staatsgeheim bucket removed */
 
   --card-bg: #FFFDE7;
   --card-shadow: 0 8px 32px rgba(0,0,0,0.25);
@@ -630,8 +630,6 @@ html, body {
 .bucket[data-category="vertrouwelijk"] .bucket-rim { background: color-mix(in srgb, var(--bucket-vertrouwelijk), white 20%); }
 .bucket[data-category="dep-v"] .bucket-body { background: var(--bucket-dep-v); }
 .bucket[data-category="dep-v"] .bucket-rim { background: color-mix(in srgb, var(--bucket-dep-v), white 20%); }
-.bucket[data-category="staatsgeheim"] .bucket-body { background: var(--bucket-staatsgeheim); }
-.bucket[data-category="staatsgeheim"] .bucket-rim { background: color-mix(in srgb, var(--bucket-staatsgeheim), white 20%); }
 
 .bucket .bucket-icon {
   width: 24px; height: 24px;
@@ -1352,17 +1350,6 @@ html, body {
       </div>
       <span class="bucket-label">Dep.V.</span>
     </div>
-    <div class="bucket" data-category="staatsgeheim">
-      <div class="bucket-handle"></div>
-      <div class="bucket-rim"></div>
-      <div class="bucket-body"></div>
-      <div class="bucket-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>
-        </svg>
-      </div>
-      <span class="bucket-label">Staatsgeheim</span>
-    </div>
   </div>
 
   <!-- FEEDBACK -->
@@ -1372,8 +1359,8 @@ html, body {
   <!-- HUD -->
   <div id="hud">
     <div class="hud-item">Score: <span class="value" id="score-display">0</span></div>
-    <div class="hud-item"><span id="progress-display">0</span> / 30</div>
-    <div class="hud-item" id="timer-hud-item">&#9201; <span class="value" id="timer-display">10:00</span></div>
+    <div class="hud-item"><span id="progress-display">0</span> / 22</div>
+    <div class="hud-item" id="timer-hud-item">&#9201; <span class="value" id="timer-display">8:00</span></div>
   </div>
   <button id="mute-btn" title="Geluid aan/uit">&#128266;</button>
 
@@ -1385,7 +1372,7 @@ html, body {
         <textPath href="#arch-path" startOffset="50%" text-anchor="middle">The Label Game</textPath>
       </text>
     </svg>
-    <div class="start-subtitle">Klik op vliegende documenten, lees de inhoud en sleep ze naar de juiste classificatiemap. Je hebt minimaal 22 van de 30 documenten goed nodig om te slagen! Hoe sneller je bent, hoe meer punten je kunt verdienen.</div>
+    <div class="start-subtitle">Klik op vliegende documenten, lees de inhoud en sleep ze naar de juiste classificatiemap. Je hebt minimaal 16 van de 22 documenten goed nodig om te slagen! Hoe sneller je bent, hoe meer punten je kunt verdienen.</div>
     <div class="name-input-group">
       <label for="player-name">Jouw naam:</label>
       <input type="text" id="player-name" placeholder="Vul je naam in..." maxlength="30" autocomplete="off" />
@@ -1404,7 +1391,7 @@ html, body {
     <div class="end-pass-fail" id="end-pass-fail">GESLAAGD</div>
     <div class="end-title" id="end-player-name">Speler</div>
     <div class="end-percentage" id="end-score-display">0 pts</div>
-    <div class="end-subtitle" id="end-subtitle">22 van 30 goed</div>
+    <div class="end-subtitle" id="end-subtitle">16 van 22 goed</div>
     <div class="end-stats">
       <div class="stat-box">
         <span class="stat-value" id="end-correct">0</span>
@@ -1428,7 +1415,7 @@ html, body {
       </div>
     </div>
     <div class="leaderboard-section" id="leaderboard-section">
-      <div class="leaderboard-title">Scorebord</div>
+      <div class="leaderboard-title">Leaderboard Top 5</div>
       <div class="leaderboard-status" id="leaderboard-status">Laden...</div>
       <div class="leaderboard-table" id="leaderboard-table"></div>
     </div>
@@ -1441,14 +1428,14 @@ html, body {
    DOCUMENT DATABASE (ADMIN CONFIGURABLE)
    ============================================================ */
 const DOCUMENTS = [
-  // ── Algemeen (6) ──────────────────────────────────
+  // ── Algemeen (5) ──────────────────────────────────
   {
     id: 1,
     title: "Openbare Veilingcatalogus",
-    description: "Overtollig kantoormeubilair en niet-gevoelige voertuigen te koop.",
+    description: "Overtollig kantoormeubilair te koop.",
     classification: "algemeen",
     hint: "We willen juist dat mensen dit zien zodat ze onze overtollige spullen kopen! Er is nul risico als dit gedeeld wordt.",
-    body: 'Kavel 041: 12x bureau (beuken, 160cm), startbod €25 per stuk. Kavel 042: 3x Volkswagen Transporter 2018, kilometerstand 120.000km, startbod €4.500. Kavel 043: 50x ergonomische bureaustoelen. Alle kavels zijn beschikbaar voor publieke bezichtiging bij het depot Soesterberg. Reserveren is niet nodig.'
+    body: 'Kavel 041: 12x bureau (beuken, 160cm), startbod \u20AC25 per stuk. Kavel 043: 50x ergonomische bureaustoelen. Alle kavels zijn beschikbaar bij het OVM Groningen. Reserveren is niet nodig.'
   },
   {
     id: 2,
@@ -1456,7 +1443,7 @@ const DOCUMENTS = [
     description: "Instructies voor burgers om een account aan te maken.",
     classification: "algemeen",
     hint: "Hier staan geen gevoelige gegevens in; het is gewoon een instructie bedoeld voor gewone burgers.",
-    body: 'Om deel te nemen aan onze veilingen, ga naar www.domeinenroerende-zaken.nl en klik op "Registreren". U heeft een geldig e-mailadres en een Nederlands postadres nodig. Verificatie geschiedt via een e-maillink. Na registratie kunt u alle openbare catalogi bekijken en online biedingen plaatsen.'
+    body: 'Om deel te nemen aan onze veilingen, ga naar onlineveilingmeester.nl en klik op "Registreren". U heeft een geldig e-mailadres en een Nederlands postadres nodig. Verificatie geschiedt via een e-maillink. Na registratie kunt u alle openbare catalogi bekijken en online biedingen plaatsen.'
   },
   {
     id: 3,
@@ -1472,7 +1459,7 @@ const DOCUMENTS = [
     description: "Data en tijden voor publieke bezichtigingen in Soesterberg.",
     classification: "algemeen",
     hint: "Iedereen kan op deze dagen zomaar vanaf de straat binnenlopen. Er is absoluut geen geheim om te bewaren.",
-    body: 'Kijkdagen Q1 2025: 15 januari (09:00\u201316:00), 12 februari (09:00\u201316:00), 19 maart (09:00\u201316:00). Locatie: Depot Soesterberg, Banningstraat 8. Gratis toegang, neem een geldig identiteitsbewijs mee voor toegang tot het terrein. Fotograferen is toegestaan in de openbare tentoonstellingshal.'
+    body: 'Kijkdagen Q1 2025: 15 januari (09:00\u201316:00), 12 februari (09:00\u201316:00), 19 maart (09:00\u201316:00). Locatie: Depot Soesterberg, Banningstraat 8. Neem een geldig identiteitsbewijs mee voor toegang tot het terrein. Fotograferen is niet toegestaan in de openbare tentoonstellingshal. Het is niet toegestaan om een rugzak/tas mee naar binnen te nemen. Let op: bezoekers dienen zich vooraf te registreren op de website van Online Veiling Meester (onlineveilingmeester.nl) en zich bij aankomst op het terrein te melden bij de bewaking.'
   },
   {
     id: 5,
@@ -1480,102 +1467,94 @@ const DOCUMENTS = [
     description: "Juridische voorwaarden voor overheidskopers.",
     classification: "algemeen",
     hint: "Dit is standaard juridische tekst die elke koper toch al moet accepteren en doorlezen.",
-    body: 'Artikel 1: Alle goederen worden verkocht in de staat waarin ze zich bevinden, zonder garantie. Artikel 2: Betaling dient binnen 5 werkdagen na facturering te worden voldaan. Artikel 3: Kopers zijn verantwoordelijk voor transport en ophaling. Artikel 4: DRZ behoudt het recht kavels v\u00F3\u00F3r sluiting van de veiling in te trekken. Artikel 5: Geschillen vallen onder Nederlands recht.'
-  },
-  {
-    id: 6,
-    title: "Persbericht Recordverkoop",
-    description: "Nieuwsbericht over een veiling van een oldtimer.",
-    classification: "algemeen",
-    hint: "We hebben dit specifiek geschreven om naar de kranten te sturen. Geen enkele schade mogelijk.",
-    body: 'PERSBERICHT \u2014 Een Mercedes-Benz 450 SL uit 1978, voorheen onderdeel van een overheids\u00ADwagenpark, is afgelopen vrijdag voor een recordbedrag van \u20AC34.500 verkocht op de DRZ-veiling. De veiling trok 238 geregistreerde bieders. "Dit laat de sterke publieke belangstelling voor onze veilingen zien," aldus DRZ-woordvoerder Marieke de Vries.'
+    body: 'Artikel 1: Alle goederen worden verkocht in de staat waarin ze zich bevinden, zonder garantie. Artikel 2: Betaling dient binnen 5 werkdagen na facturering te worden voldaan. Artikel 3: Kopers zijn verantwoordelijk voor transport. Artikel 4: DRZ behoudt het recht kavels v\u00F3\u00F3r sluiting van de veiling in te trekken. Artikel 5: Geschillen vallen onder Nederlands recht.'
   },
 
   // ── Intern (6) ────────────────────────────────────
   {
-    id: 7,
-    title: "Kantinerooster",
+    id: 6,
+    title: "Kantinerooster Hoofdkantoor Apeldoorn",
     description: "Weekschema voor de personeelskantine.",
     classification: "intern",
     hint: "Uitlekken leidt niet tot een rechtszaak, maar collega\u2019s vinden het misschien vervelend als buitenstaanders weten wat we lunchen.",
-    body: 'Week 12 kantineschema: Maandag \u2014 Tomatensoep + broodjes. Dinsdag \u2014 Pastadag. Woensdag \u2014 Stamppot. Donderdag \u2014 Wraps. Vrijdag \u2014 Verrassingslunch. Lunch wordt geserveerd van 12:00\u201313:00. Meld dieetvoorkeuren uiterlijk donderdag aan via het intranetportaal.'
+    body: 'Week 12 kantineschema: Maandag \u2014 Tomatensoep + broodjes. Dinsdag \u2014 Pastadag. Woensdag \u2014 Stamppot. Donderdag \u2014 Wraps. Vrijdag \u2014 Verrassingslunch. Lunch wordt geserveerd van 12:00\u201313:00.'
   },
   {
-    id: 8,
+    id: 7,
     title: "Handleiding Softwareportaal",
     description: "Gebruikershandleiding voor het interne DRZ-portaal.",
     classification: "intern",
     hint: "Geen staatsgeheim, maar specifiek voor onze werkplek en volkomen nutteloos voor het grote publiek.",
-    body: 'Hoofdstuk 3: Inloggen op het DRZ-portaal. Open uw browser en ga naar intranet.drz.minfin.nl. Gebruik uw RijksID-inloggegevens om in te loggen. Bij een "Toegang geweigerd"-melding kunt u contact opnemen met de ICT-helpdesk via toestel 4500. Zorg dat uw VPN actief is bij thuiswerken.'
+    body: 'Hoofdstuk 3: Inloggen op het DRZ-portaal. Open uw browser en ga naar intranet.drz.nl. Gebruik uw RijksID-inloggegevens om in te loggen. Bij een "Toegang geweigerd"-melding kunt u contact opnemen met de Servicedesk.'
   },
   {
-    id: 9,
+    id: 8,
     title: "Notulen Teamoverleg",
     description: "Notulen over vervanging kantoorprinters.",
     classification: "intern",
     hint: "Gewoon alledaags geklets over het upgraden van printers. Een beetje g\u00EAnant als het openbaar wordt, maar geen echte schade.",
-    body: 'Vergadering 14 maart 2025, aanwezigen: team Logistiek. Agendapunt 1: De Ricoh-printers op verdieping 2 worden in april vervangen door HP LaserJet-apparaten. Punt 2: Parkeervergunningen voor het nieuwe terrein zijn verkrijgbaar bij de receptie. Punt 3: Teamuitje is gepland in juni, suggesties welkom per e-mail.'
+    body: 'Vergadering 14 maart 2025, aanwezigen: team Logistiek. Agendapunt 1: De Ricoh-printers op verdieping 2 worden in april vervangen door HP LaserJet-apparaten.'
   },
   {
-    id: 10,
+    id: 9,
     title: "Schoonmaakrooster Gebouwen",
     description: "Onderhoudsplanning voor magazijnvloeren.",
     classification: "intern",
     hint: "Weten wanneer de vloeren precies worden gedweild, is puur een operationeel detail voor ons eigen personeel.",
-    body: 'Magazijn A: grondige schoonmaak elke dinsdag en vrijdag, 06:00\u201308:00. Magazijn B: wekelijks op donderdag. Kantoorvloeren: dagelijks stofzuigen, tweewekelijks dweilen. Het schoonmaakteam dient lekkages direct te melden via het facilitair beheerformulier op het intranet. Benodigdheden liggen opgeslagen in ruimte K-01.'
+    body: 'Magazijn A: grondige schoonmaak elke dinsdag en vrijdag, 06:00\u201308:00. Magazijn B: wekelijks op donderdag. Kantoorvloeren: dagelijks stofzuigen, tweewekelijks dweilen. Het schoonmaakteam dient lekkages direct te melden via het facilitair beheerformulier op intranet. Benodigdheden liggen opgeslagen in ruimte K-01.'
   },
   {
-    id: 11,
-    title: "Concept Interne Vacature",
+    id: 10,
+    title: "Concept Vacature",
     description: "Functiebeschrijving v\u00F3\u00F3r publicatie.",
     classification: "intern",
     hint: "Het is nog niet openbaar. Een lek verstoort hooguit de planning van HR, maar kost de organisatie verder geen geld.",
     body: 'CONCEPT \u2014 Vacature: Senior Veilingco\u00F6rdinator, 36 uur/week, salarisschaal 10. Locatie: Soesterberg. Eisen: WO-niveau, 3+ jaar ervaring in logistiek of publieke sector. Let op: deze vacature wacht op goedkeuring van HR en wordt na beoordeling gepubliceerd op Werken voor Nederland.'
   },
   {
-    id: 12,
+    id: 11,
     title: "Onboarding-presentatie Nieuwe Medewerkers",
     description: "Standaard introductie\u00ADslides voor nieuwe collega\u2019s.",
     classification: "intern",
     hint: "Dit bevat onze interne kantoorcultuur en regels. Onschuldig, maar alleen bedoeld voor de ogen van ons eigen team.",
-    body: 'Slide 4: Onze Kernwaarden \u2014 Transparantie, Integriteit, Effici\u00EBntie. Slide 5: Werktijden zijn 08:30\u201317:00, flexibel binnen de kerntijden 09:30\u201315:30. Slide 6: Uw eerste week omvat: IT-configuratie (dag 1), teamintroductie (dag 2), buddyprogramma (dag 3\u20135). Neem contact op met HR via hr@drz.minfin.nl bij vragen.'
+    body: 'Slide 4: Onze Kernwaarden \u2014 Transparantie, Integriteit, Effici\u00EBntie. Slide 5: Werktijden zijn 08:30\u201317:00, flexibel binnen de kerntijden 09:30\u201315:30. Slide 6: Uw eerste week omvat: IT-configuratie (dag 1), teamintroductie (dag 2), buddyprogramma (dag 3\u20135). Neem contact op met HR via personeelszaken@domeinenrz.nl bij vragen.'
   },
 
   // ── Vertrouwelijk (6) ─────────────────────────────
   {
-    id: 13,
-    title: "Persoonsgegevens Winnende Bieder",
+    id: 12,
+    title: "Persoonsgegevens Hoogste Bieder",
     description: "Namen, BSN-nummers en bankgegevens van kopers.",
     classification: "vertrouwelijk",
     hint: "Denk aan de AVG! Als dit uitlekt, schenden we de privacy van burgers (BSN, bankrekeningen) en riskeren we flinke boetes.",
-    body: 'Veiling 2025-0892, gegevens winnende bieder: <b>J.P. van der Berg, BSN 928.41.723</b>, woonachtig op <b>Keizersgracht 412, 1016 GC Amsterdam</b>. Betaling via <b>IBAN NL91 ABNA 0417 1643 00</b>. Bod: \u20AC12.750 voor Kavel 089 (Audi A6 Avant). Identiteit geverifieerd via paspoort <b>NW82P1KR4</b>.'
+    body: 'Veiling 2025-0892, gegevens hoogste bieder: <b>J.P. van der Berg, BSN 928.41.723</b>, woonachtig op <b>Keizersgracht 412, 1016 GC Amsterdam</b>. Betaling via <b>IBAN NL91 ABNA 0417 1643 00</b>. Bod: \u20AC12.750 voor Kavel 089 (Audi A6 Avant). Identiteit geverifieerd via paspoort <b>NW82P1KR4</b>.'
+  },
+  {
+    id: 13,
+    title: "Individuele Functionerings\u00ADgesprekken",
+    description: "HR-dossiers van medewerkers DRZ.",
+    classification: "vertrouwelijk",
+    hint: "Het uitlekken van HR-dossiers schaadt het vertrouwen van werknemers ernstig en is een harde schending van de privacywet.",
+    body: 'Jaarbeoordeling 2024 \u2014 Medewerker: <b>B. Slim, personeelsnummer 40921</b>. Totaalbeoordeling: Voldoende. Sterke punten: goede communicatie met klanten, punctueel. Ontwikkelpunten: <b>tijdmanagement onder druk, twee formele waarschuwingen wegens late rapportage</b>. Aanbeveling leidinggevende: contract verlengen. <b>Salaris: \u20AC4.280/maand</b>.'
   },
   {
     id: 14,
-    title: "Individuele Functionerings\u00ADgesprekken",
-    description: "HR-dossiers van veilingmeesters/managers.",
-    classification: "vertrouwelijk",
-    hint: "Het uitlekken van HR-dossiers schaadt het vertrouwen van werknemers ernstig en is een harde schending van de privacywet.",
-    body: 'Jaarbeoordeling 2024 \u2014 Medewerker: <b>R. Bakker, personeelsnummer 40921</b>. Totaalbeoordeling: Voldoende. Sterke punten: goede communicatie met klanten, punctueel. Ontwikkelpunten: <b>tijdmanagement onder druk, twee formele waarschuwingen wegens late rapportage</b>. Aanbeveling leidinggevende: contract verlengen met verbeterplan. <b>Salaris: \u20AC4.280/maand</b>.'
-  },
-  {
-    id: 15,
-    title: "Beveiligingscontract Particuliere Bewaking",
+    title: "Beveiligingscontract Rijksbeveiliging Organisatie",
     description: "Gedetailleerde prijsstelling en SLA\u2019s met beveiligingsfirma.",
     classification: "vertrouwelijk",
     hint: "Dit bevat gevoelige commerci\u00EBle tarieven. Als een concurrent dit ziet, schaadt dat onze financi\u00EBle onderhandelingspositie.",
-    body: 'Contract SC-2025-114 tussen DRZ en SecureForce B.V. Looptijd: 3 jaar. <b>Jaarlijkse vergoeding: \u20AC892.000</b>. SLA: reactietijd op alarmen \u2264 8 minuten. <b>Bewakingsroutes: Depot A zuidingang elke 45 min, Depot B perimeter elke 30 min</b>. Boeteclausule: \u20AC5.000 per SLA-schending. Ondertekend door <b>directeur P. de Groot</b>.'
+    body: 'Contract SC-2025-114 tussen DRZ en Rijksbeveiliging Organisatie. Looptijd: 3 jaar. <b>Jaarlijkse vergoeding: \u20AC892.000</b>. SLA: reactietijd op alarmen \u2264 8 minuten. <b>Bewakingsroutes: Depot A zuidingang elke 45 min, Depot B perimeter elke 30 min</b>. Boeteclausule: \u20AC5.000 per SLA-schending. Ondertekend door <b>directeur P. de Groot</b>.'
   },
   {
-    id: 16,
+    id: 15,
     title: "Taxatierapport In Beslag Genomen Jacht",
     description: "Financi\u00EBle waardering van een priv\u00E9bezit.",
     classification: "vertrouwelijk",
     hint: "Dit zijn gedetailleerde financi\u00EBle gegevens van een particulier. Uitlekken veroorzaakt persoonlijke financi\u00EBle schade.",
-    body: 'Taxatierapport \u2014 Vaartuig: <b>M/Y "Eclipse II", 28m Sunseeker</b>, in beslag genomen onder rechterlijk bevel 2024/KG/4421. <b>Geschatte marktwaarde: \u20AC2.150.000</b>. Huidige ligplaats: <b>Marina IJmuiden, steiger 14-C</b>. Staat: goed, motoronderhoud nodig. Vorige geregistreerde eigenaar: <b>Holding Maaskant B.V., KvK 58201844</b>.'
+    body: 'Taxatierapport \u2014 Vaartuig: <b>M/Y "Eclipse II", 28m Sunseeker</b>, in beslag genomen onder rechterlijk bevel 2024/KG/4421. <b>Geschatte marktwaarde: \u20AC2.150.000</b>. Huidige ligplaats: <b>Marina IJmuiden, steiger 14-C</b>. Staat: goed, motoronderhoud nodig. Geregistreerde eigenaar: <b>Holding Maaskant B.V., KvK 58201844</b>.'
   },
   {
-    id: 17,
+    id: 16,
     title: "Interne Audit Veilingopbrengsten",
     description: "Rapport over een discrepantie van \u20AC50.000.",
     classification: "vertrouwelijk",
@@ -1583,7 +1562,7 @@ const DOCUMENTS = [
     body: 'Auditreferentie: IA-2025-007. Bevinding: een <b>verschil van \u20AC50.340</b> is vastgesteld tussen geregistreerde veilingopbrengsten en bankstortingen over Q3 2024. Betrokken veilingen: 2024-0711 t/m 2024-0734. Oorzaak wordt onderzocht. <b>Vermoedelijke invoerfouten in het betalingsafstemmingssysteem</b>. Aanbeveling: volledige transactie\u00ADcontrole en dubbele goedkeuringsprocedure.'
   },
   {
-    id: 18,
+    id: 17,
     title: "IT-Kwetsbaarheids\u00ADbeoordeling",
     description: "Technische scan met benodigde databasepatches.",
     classification: "vertrouwelijk",
@@ -1591,25 +1570,25 @@ const DOCUMENTS = [
     body: 'Scandatum: 2025-02-10. <b>Kritiek: SQL-injectie-kwetsbaarheid in veilingportaal (CVE-2024-38124)</b>. Server drz-db-prod-01 draait op <b>niet-gepatcht PostgreSQL 14.2</b>. 3 bevindingen met hoge ernst, 11 gemiddeld. <b>Beheerdersgegevens opgeslagen als platte tekst in config.yml</b>. Onmiddellijk patchen vereist v\u00F3\u00F3r de volgende veilingronde. Rapport opgesteld door: IT Security-team.'
   },
 
-  // ── Dep.V. (6) ────────────────────────────────────
+  // ── Dep.V. (5) ────────────────────────────────────
   {
-    id: 19,
+    id: 18,
     title: "Ontmantelingsprotocol Hennepplantages",
-    description: "Logistiek voor het veilig opruimen van illegale kwekerijen.",
+    description: "Logistiek voor het veilig ontmantelen van illegale kwekerijen.",
     classification: "dep-v",
     hint: "Als criminelen dit lezen, kunnen ze onze politieacties voorspellen en zich verstoppen. Het verstoort direct de rechtsgang.",
     body: 'Operatiedossier: <b>ontmanteling van 3 illegale hennepplantages</b> in Noord-Brabant, in beslag genomen onder bevel 2025/RB/1192. <b>Locatie 1: Industrieweg 44, Eindhoven</b> (geschat 2.400 planten). Hazmat-team vereist voor <b>verwijdering chemische meststoffen</b>. Alle in beslag genomen apparatuur naar DRZ Depot C onder politiebegeleiding. <b>Co\u00F6rdinatie met Politie eenheid Oost-Brabant</b>.'
   },
   {
-    id: 20,
+    id: 19,
     title: "OM-Correspondentie Georganiseerde Misdaad",
     description: "Brieven over beslaglegging bij High-Value Targets.",
     classification: "dep-v",
     hint: "Uitlekken brengt lopende inbeslagnames van het Openbaar Ministerie in gevaar. Dit schaadt direct de rechtsstaat.",
-    body: 'Brief van het Openbaar Ministerie, ref: <b>OM/HVT/2025-0044</b>. Onderwerp: bevel tot beslaglegging op bezittingen van doelwitten gelinkt aan <b>Mocro-maffia-netwerk "Operatie Heron"</b>. Bezittingen omvatten 4 panden, 7 voertuigen en <b>bankrekeningen ter waarde van \u20AC3,2 miljoen</b>. DRZ ge\u00EFnstrueerd om <b>alle items onder strikte chain-of-custody te beveiligen en te catalogiseren</b>. Niet openbaar maken aan derden.'
+    body: 'Brief van het Openbaar Ministerie, ref: <b>OM/HVT/2025-0044</b>. Onderwerp: bevel tot beslaglegging op bezittingen van doelwitten gelinkt aan <b>maffia-netwerk "Operatie Heron"</b>. Bezittingen omvatten 4 panden, 7 voertuigen en <b>bankrekeningen ter waarde van \u20AC3,2 miljoen</b>. DRZ ge\u00EFnstrueerd om <b>alle items onder strikte chain-of-custody te beveiligen en te catalogiseren</b>. Niet openbaar maken aan derden.'
   },
   {
-    id: 21,
+    id: 20,
     title: "Beveiligde Opslagplaats Plattegrond",
     description: "Kaarten met blinde vlekken van camera\u2019s in kluizen.",
     classification: "dep-v",
@@ -1617,78 +1596,20 @@ const DOCUMENTS = [
     body: 'Plattegrond ref: SEC-VAULT-2024-R3. <b>Blinde vlekken camera\'s ge\u00EFdentificeerd: gang B7 (NO-hoek), laadperron 3 (achter pilaar P12)</b>. Kluisdeur\u00ADcombinatie: elk kwartaal gerouleerd. <b>Huidig gat in bewaking: 4 min venster tussen bewakersrondes om 02:15</b>. Bewegingssensoren offline in zone D tijdens onderhoudsvenster donderdagen 22:00\u201300:00. <b>Vrijgave: alleen Dep.V.</b>'
   },
   {
+    id: 21,
+    title: "Logistiek Plan Illegale Sigarettentransport",
+    description: "Dit plan beschrijft het vervoer van ruim 4,2 miljoen in beslag genomen illegale sigaretten, voornamelijk van het merk Marlboro en enkele Oost-Europese merken. De sigaretten zijn aangetroffen bij een grootschalige inval in een loods in Rotterdam en worden vanwege het bewijs voor verdere analyse en vernietiging naar een beveiligde opslaglocatie vervoerd.",
+    classification: "dep-v",
+    hint: "Dit transportplan bevat routes, tijden en beveiligingsdetails van in beslag genomen goederen. Als criminelen dit in handen krijgen, kunnen ze het transport onderscheppen of saboteren.",
+    body: 'Transportplan TP-2026-013. Lading: <b>in beslag genomen sigaretten in 400 dozen</b> (totale straatwaarde circa \u20AC1,3 miljoen). <b>Route: Douane Depot Rotterdam \u2192 Gecontroleerde opslaglocatie Roosendaal via A16/A17</b>. Vertrek: 07:30 uur. Begeleiding: <b>1 gepantserd transportvoertuig + douaneteam</b>. Tussentijdse stop: Douanecontrole Breda. GPS-tracking en CCTV bewaking tijdens het gehele transport. <b>Uitwijkpunt bij incident: Rijkswaterstaat opslag Zevenbergen</b>.'
+  },
+  {
     id: 22,
-    title: "Logistiek Plan Groot\u00ADschalig Geld\u00ADtransport",
-    description: "Transportgegevens voor miljoenen aan in beslag genomen contanten.",
-    classification: "dep-v",
-    hint: "Dit is een recept voor een gewapende overval op onze transportteams. Het bedreigt een kerntaak van de overheid.",
-    body: 'Transportplan TP-2025-019. Lading: <b>in beslag genomen contanten ter waarde van \u20AC4,7 miljoen</b> (coupures: \u20AC500, \u20AC200, \u20AC100). <b>Route: DRZ Depot Bleiswijk \u2192 DNB Amsterdam via A4/A10</b>. Vertrek: 06:00 stipt. Begeleiding: <b>2 gepantserde voertuigen + KMar-eenheid</b>. Geen tussenstops toegestaan. GPS-tracking actief. <b>Uitwijkpunt: Shell Badhoevedorp</b>.'
-  },
-  {
-    id: 23,
-    title: "Strategie Gevaarlijk Militair Surplus",
-    description: "Vernietigingsprotocol voor giftig marine-afval.",
-    classification: "dep-v",
-    hint: "Het verkeerd omgaan met deze informatie kan leiden tot milieurampen en zware politieke gevolgen voor het Ministerie van Financi\u00EBn.",
-    body: 'Vernietigingsprotocol MIL-HAZ-2025-003. Items: <b>14 ton giftige antifouling-verf van uit dienst genomen RNLN-schepen</b>. Classificatie: <b>ADR Klasse 6.1 (giftige stoffen)</b>. Opslag: <b>bunker K-7, Marinebasis Den Helder</b>. Geautoriseerd vernietigingsbedrijf: Vopak Environmental Services. <b>Transport vereist Defensie-escorte en RIVM-melding</b>. Niet openbaar maken.'
-  },
-  {
-    id: 24,
     title: "Rapport Fraude-onderzoek",
     description: "Dossier over een medewerker verdacht van het tippen van kopers.",
     classification: "dep-v",
     hint: "Dit gaat over fraude door een medewerker. Een lek zou het strafrechtelijk onderzoek in gevaar brengen en de Minister ernstig in verlegenheid brengen.",
-    body: 'Onderzoeksreferentie: <b>BI-2025-012, VERTROUWELIJK</b>. Betrokkene: <b>medewerker M. Jansen (afd. Logistiek, personeelsnr. 30847)</b>, verdacht van het lekken van aankomende kavelgegevens aan externe koper <b>"AutoPlus Handelsbedrijf"</b>. Bewijs: <b>14 telefoongesprekken naar hetzelfde nummer voorafgaand aan 6 veilingen</b>. Aanbeveling: schorsen in afwachting van OM-verwijzing. <b>Betrokkene niet op de hoogte stellen</b>.'
-  },
-
-  // ── Staatsgeheim (6) ──────────────────────────────
-  {
-    id: 25,
-    title: "Specificaties Afgestoten F-16 Hardware",
-    description: "Gegevens over onderdelen die vernietigd moeten worden voor de NAVO.",
-    classification: "staatsgeheim",
-    hint: "Dit bevat geclassificeerde militaire data. Uitlekken brengt de NAVO-defensie en de nationale veiligheid direct in gevaar.",
-    body: 'NAVO BEPERKT \u2014 <b>F-16AM avionics module AN/APG-66(V)2 radarunit</b>, seriebatch KLu-2019-F16-044 t/m 052. <b>Cryptografische IFF-transponder\u00ADkaarten moeten worden vernietigd door verbranding (MIL-STD-882E)</b>. Overige celonderdelen vrijgegeven voor gecontroleerde verkoop. <b>Geen overdracht aan niet-NAVO-landen toegestaan</b>. Vernietiging bijgewoond door MIVD-verbindingsofficier.'
-  },
-  {
-    id: 26,
-    title: "Sanctielijst Gesanctioneerde Oligarch",
-    description: "Inventaris van bezittingen in beslag genomen onder internationale sancties.",
-    classification: "staatsgeheim",
-    hint: "Dit is gekoppeld aan internationale geopolitiek. Een lek veroorzaakt ernstige diplomatieke incidenten tussen landen.",
-    body: 'EU-Sanctieverordening 2024/1485. <b>Doelwit: Dmitri V. Sorokin, Russisch staatsburger, geb. 14-08-1967</b>. In beslag genomen bezittingen in NL: <b>Villa aan Parkweg 9, Wassenaar (waarde \u20AC8,4M)</b>, <b>Jacht "Tsarina" afgemeerd in Scheveningen</b>, <b>Picasso-schilderij "Femme Assise" in freeportopslag</b>. <b>Gezamenlijke operatie met FIOD, AIVD en EU-Raadswerkgroep</b>. Verspreiding: uitsluitend Stg.'
-  },
-  {
-    id: 27,
-    title: "AIVD/MIVD Protocol Hardware\u00ADvernietiging",
-    description: "Verwerking van black-box-technologie van inlichtingendiensten.",
-    classification: "staatsgeheim",
-    hint: "Dit raakt de inlichtingendiensten. Uitlekken brengt in gevaar hoe onze spionnen werken en het land beschermen.",
-    body: '<b>CLASSIFICATIE: STAATSGEHEIM</b>. Vernietigings\u00ADbatch SIGINT-2025-R08: <b>12x signals intelligence-ontvangers, 4x versleutelde satellietterminals, 2x netwerk\u00ADexploitatie-apparaten</b>. Herkomst: <b>AIVD technische afdeling en MIVD-eenheid JISTARC</b>. Alle items moeten <b>fysiek worden vernietigd (versnipperd + gedemagnetiseerd) bij gecertificeerde faciliteit Zoetermeer</b>. <b>Geen fotografie. Geen civiele aannemers</b>.'
-  },
-  {
-    id: 28,
-    title: "Safe House-locaties Getuigen\u00ADbescherming",
-    description: "Logistiek voor vastgoed ingezet bij getuigenbescherming.",
-    classification: "staatsgeheim",
-    hint: "Dit is letterlijk een kwestie van leven of dood. Als dit uitlekt, kunnen mensen onder staatsbescherming worden geliquideerd.",
-    body: 'Getuigenbeschermings\u00ADlogistiek, ref: <b>WP/DRZ/2025-ALFA</b>. Toegewezen gemeubileerde woningen: <b>Eenheid A: Groningen (2-kamerappartement, omgeving Zuiderpark)</b>, <b>Eenheid B: Maastricht (vrijstaande woning, Randwyck)</b>. <b>Geregistreerd onder schermentiteit "Orion Vastgoed B.V."</b> Maandelijkse huur betaald via <b>OM discretionair budget lijn 7.4.2</b>. <b>Compromittering van deze locaties brengt levens van getuigen in gevaar</b>.'
-  },
-  {
-    id: 29,
-    title: "Criminele Inlichtingen Dreigingsrapport",
-    description: "Briefing over bendes die een gewapende overval plannen op een depot.",
-    classification: "staatsgeheim",
-    hint: "Dit is zeer geheime politie-informatie (TCI). Uitlekken bedreigt de nationale veiligheid en brengt undercoveragenten in levensgevaar.",
-    body: '<b>DREIGINGSBRIEFING \u2014 URGENT</b>. Bron: <b>TCI (Team Criminele Inlichtingen)</b>, betrouwbaarheid: A2. Onderwerp: <b>leden van bende "Taghi-netwerk" plannen gewapende overval op DRZ high-value depot Bleiswijk</b>. Doelwit: <b>in beslag genomen luxe voertuigen en geldkluisopslag</b>. Geschat tijdsbestek: <b>binnen 2\u20134 weken</b>. Verdachten onder AIVD-surveillance. <b>Geen zichtbare beveiliging ophogen om doelwitten niet te alarmeren</b>.'
-  },
-  {
-    id: 30,
-    title: "Terrorismefinanciering Beslagdossier",
-    description: "Dossiers over bezittingen die lopende opsporingsmethoden onthullen.",
-    classification: "staatsgeheim",
-    hint: "Dit gaat over nationale terreurdreigingen. Een lek zou antiterrorisme-operaties verlammen en het hele land in gevaar brengen.",
-    body: '<b>CT-SEIZURE-2025-NL-009</b>. In beslag genomen bezittingen van <b>terrorisme\u00ADfinancieringsnetwerk gelinkt aan aangemerkte entiteit op UNSC 1267-lijst</b>. Items: <b>12 prepaid telefoons, 3 versleutelde laptops, \u20AC280.000 in cryptocurrency-wallets</b>. Bewijsketen onderhouden voor <b>lopende NCTV/AIVD-operatie "Schaduwberg"</b>. <b>Onthulling van beslagmethoden zou actieve infiltratie\u00ADagenten compromitteren</b>. Maximale beperking.'
+    body: 'Onderzoeksreferentie: <b>BI-2025-012, VERTROUWELIJK</b>. Betrokkene: <b>medewerker M. Slim (afd. Taxatie, personeelsnr. 30847)</b>, verdacht van het lekken van aankomende kavelgegevens aan externe koper <b>"AutoPlus Handelsbedrijf"</b>. Bewijs: <b>14 telefoongesprekken naar hetzelfde nummer voorafgaand aan 6 veilingen</b>. Aanbeveling: schorsen in afwachting van OM-verwijzing.'
   }
 ];
 
@@ -1697,7 +1618,6 @@ const CLASSIFICATIONS = [
   { id: "intern",         label: "Intern",         color: "#AB47BC" },
   { id: "vertrouwelijk",  label: "Vertrouwelijk",  color: "#FFA726" },
   { id: "dep-v",          label: "Dep.V.",         color: "#EF5350" },
-  { id: "staatsgeheim",   label: "Staatsgeheim",   color: "#EC407A" }
 ];
 
 const CONFIG = {
@@ -1712,14 +1632,14 @@ const CONFIG = {
   minPointsWithHint: 5,
   feedbackDurationMs: 1800,
   docOpenTransitionMs: 500,
-  passThreshold: 22,  // minimaal aantal goede antwoorden om te slagen
-  totalDocuments: 30,
-  gameDurationSeconds: 600, // 10 minuten
+  passThreshold: 16,  // minimaal aantal goede antwoorden om te slagen
+  totalDocuments: 22,
+  gameDurationSeconds: 480, // 8 minuten
   timeScoring: [
-    { maxElapsed: 180, points: 100 },  // 0:00 – 3:00
-    { maxElapsed: 300, points: 85 },   // 3:01 – 5:00
-    { maxElapsed: 420, points: 70 },   // 5:01 – 7:00
-    { maxElapsed: 600, points: 55 }    // 7:01 – 10:00
+    { maxElapsed: 144, points: 100 },  // 0:00 – 2:24
+    { maxElapsed: 240, points: 85 },   // 2:25 – 4:00
+    { maxElapsed: 336, points: 70 },   // 4:01 – 5:36
+    { maxElapsed: 480, points: 55 }    // 5:37 – 8:00
   ]
 };
 
@@ -2801,7 +2721,7 @@ class Leaderboard {
   async fetch() {
     if (!this.enabled) return null;
     try {
-      const res = await fetch(this.url + '?action=leaderboard&limit=20');
+      const res = await fetch(this.url + '?action=leaderboard&limit=5');
       if (!res.ok) return null;
       return await res.json();
     } catch (e) {
@@ -2824,7 +2744,7 @@ class Leaderboard {
     status.style.display = 'none';
     let foundCurrent = false;
 
-    data.forEach((entry, i) => {
+    data.slice(0, 5).forEach((entry, i) => {
       const row = document.createElement('div');
       row.className = 'lb-row';
       const isCurrent = entry.name === currentName && entry.score === currentScore && !foundCurrent;
@@ -3193,7 +3113,7 @@ window.addEventListener('DOMContentLoaded', () => {
        data.name || 'Unknown',
        data.percentage || 0,
        data.correct || 0,
-       data.total || 30,
+       data.total || 22,
        data.passed ? 'Yes' : 'No',
        data.score || 0,
        data.basePoints || 0,

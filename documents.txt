@@ -1,22 +1,22 @@
 The Label Game – DRZ Document Sortering
-30 Voorbeelddocumenten met hints en classificaties
+22 Voorbeelddocumenten met hints en classificaties
 
 
 ════════════════════════════════════════════════════════════════
-ALGEMEEN (6 documenten)
+ALGEMEEN (5 documenten)
 ════════════════════════════════════════════════════════════════
 
 1. Openbare Veilingcatalogus
-Beschrijving: Overtollig kantoormeubilair en niet-gevoelige voertuigen te koop.
+Beschrijving: Overtollig kantoormeubilair te koop.
 Classificatie: Algemeen
 Hint: We willen juist dat mensen dit zien zodat ze onze overtollige spullen kopen! Er is nul risico als dit gedeeld wordt.
-Inhoud: Kavel 041: 12x bureau (beuken, 160cm), startbod €25 per stuk. Kavel 042: 3x Volkswagen Transporter 2018, kilometerstand 120.000km, startbod €4.500. Kavel 043: 50x ergonomische bureaustoelen. Alle kavels zijn beschikbaar voor publieke bezichtiging bij het depot Soesterberg. Reserveren is niet nodig.
+Inhoud: Kavel 041: 12x bureau (beuken, 160cm), startbod €25 per stuk. Kavel 043: 50x ergonomische bureaustoelen. Alle kavels zijn beschikbaar bij het OVM Groningen. Reserveren is niet nodig.
 
 2. Handleiding Koperregistratie
 Beschrijving: Instructies voor burgers om een account aan te maken.
 Classificatie: Algemeen
 Hint: Hier staan geen gevoelige gegevens in; het is gewoon een instructie bedoeld voor gewone burgers.
-Inhoud: Om deel te nemen aan onze veilingen, ga naar www.domeinenroerende-zaken.nl en klik op "Registreren". U heeft een geldig e-mailadres en een Nederlands postadres nodig. Verificatie geschiedt via een e-maillink. Na registratie kunt u alle openbare catalogi bekijken en online biedingen plaatsen.
+Inhoud: Om deel te nemen aan onze veilingen, ga naar onlineveilingmeester.nl en klik op "Registreren". U heeft een geldig e-mailadres en een Nederlands postadres nodig. Verificatie geschiedt via een e-maillink. Na registratie kunt u alle openbare catalogi bekijken en online biedingen plaatsen.
 
 3. Duurzaamheidsjaarverslag
 Beschrijving: Openbare samenvatting van gerecycled afval.
@@ -28,97 +28,91 @@ Inhoud: In 2024 heeft DRZ 14.200 ton overtollig materiaal verwerkt. Hiervan werd
 Beschrijving: Data en tijden voor publieke bezichtigingen in Soesterberg.
 Classificatie: Algemeen
 Hint: Iedereen kan op deze dagen zomaar vanaf de straat binnenlopen. Er is absoluut geen geheim om te bewaren.
-Inhoud: Kijkdagen Q1 2025: 15 januari (09:00–16:00), 12 februari (09:00–16:00), 19 maart (09:00–16:00). Locatie: Depot Soesterberg, Banningstraat 8. Gratis toegang, neem een geldig identiteitsbewijs mee voor toegang tot het terrein. Fotograferen is toegestaan in de openbare tentoonstellingshal.
+Inhoud: Kijkdagen Q1 2025: 15 januari (09:00–16:00), 12 februari (09:00–16:00), 19 maart (09:00–16:00). Locatie: Depot Soesterberg, Banningstraat 8. Neem een geldig identiteitsbewijs mee voor toegang tot het terrein. Fotograferen is niet toegestaan in de openbare tentoonstellingshal. Het is niet toegestaan om een rugzak/tas mee naar binnen te nemen. Let op: bezoekers dienen zich vooraf te registreren op de website van Online Veiling Meester (onlineveilingmeester.nl) en zich bij aankomst op het terrein te melden bij de bewaking.
 
 5. Algemene Voorwaarden
 Beschrijving: Juridische voorwaarden voor overheidskopers.
 Classificatie: Algemeen
 Hint: Dit is standaard juridische tekst die elke koper toch al moet accepteren en doorlezen.
-Inhoud: Artikel 1: Alle goederen worden verkocht in de staat waarin ze zich bevinden, zonder garantie. Artikel 2: Betaling dient binnen 5 werkdagen na facturering te worden voldaan. Artikel 3: Kopers zijn verantwoordelijk voor transport en ophaling. Artikel 4: DRZ behoudt het recht kavels vóór sluiting van de veiling in te trekken. Artikel 5: Geschillen vallen onder Nederlands recht.
-
-6. Persbericht Recordverkoop
-Beschrijving: Nieuwsbericht over een veiling van een oldtimer.
-Classificatie: Algemeen
-Hint: We hebben dit specifiek geschreven om naar de kranten te sturen. Geen enkele schade mogelijk.
-Inhoud: PERSBERICHT — Een Mercedes-Benz 450 SL uit 1978, voorheen onderdeel van een overheidswagenpark, is afgelopen vrijdag voor een recordbedrag van €34.500 verkocht op de DRZ-veiling. De veiling trok 238 geregistreerde bieders. "Dit laat de sterke publieke belangstelling voor onze veilingen zien," aldus DRZ-woordvoerder Marieke de Vries.
+Inhoud: Artikel 1: Alle goederen worden verkocht in de staat waarin ze zich bevinden, zonder garantie. Artikel 2: Betaling dient binnen 5 werkdagen na facturering te worden voldaan. Artikel 3: Kopers zijn verantwoordelijk voor transport. Artikel 4: DRZ behoudt het recht kavels vóór sluiting van de veiling in te trekken. Artikel 5: Geschillen vallen onder Nederlands recht.
 
 
 ════════════════════════════════════════════════════════════════
 INTERN (6 documenten)
 ════════════════════════════════════════════════════════════════
 
-7. Kantinerooster
+6. Kantinerooster Hoofdkantoor Apeldoorn
 Beschrijving: Weekschema voor de personeelskantine.
 Classificatie: Intern
 Hint: Uitlekken leidt niet tot een rechtszaak, maar collega's vinden het misschien vervelend als buitenstaanders weten wat we lunchen.
-Inhoud: Week 12 kantineschema: Maandag — Tomatensoep + broodjes. Dinsdag — Pastadag. Woensdag — Stamppot. Donderdag — Wraps. Vrijdag — Verrassingslunch. Lunch wordt geserveerd van 12:00–13:00. Meld dieetvoorkeuren uiterlijk donderdag aan via het intranetportaal.
+Inhoud: Week 12 kantineschema: Maandag — Tomatensoep + broodjes. Dinsdag — Pastadag. Woensdag — Stamppot. Donderdag — Wraps. Vrijdag — Verrassingslunch. Lunch wordt geserveerd van 12:00–13:00.
 
-8. Handleiding Softwareportaal
+7. Handleiding Softwareportaal
 Beschrijving: Gebruikershandleiding voor het interne DRZ-portaal.
 Classificatie: Intern
 Hint: Geen staatsgeheim, maar specifiek voor onze werkplek en volkomen nutteloos voor het grote publiek.
-Inhoud: Hoofdstuk 3: Inloggen op het DRZ-portaal. Open uw browser en ga naar intranet.drz.minfin.nl. Gebruik uw RijksID-inloggegevens om in te loggen. Bij een "Toegang geweigerd"-melding kunt u contact opnemen met de ICT-helpdesk via toestel 4500. Zorg dat uw VPN actief is bij thuiswerken.
+Inhoud: Hoofdstuk 3: Inloggen op het DRZ-portaal. Open uw browser en ga naar intranet.drz.nl. Gebruik uw RijksID-inloggegevens om in te loggen. Bij een "Toegang geweigerd"-melding kunt u contact opnemen met de Servicedesk.
 
-9. Notulen Teamoverleg
+8. Notulen Teamoverleg
 Beschrijving: Notulen over vervanging kantoorprinters.
 Classificatie: Intern
 Hint: Gewoon alledaags geklets over het upgraden van printers. Een beetje gênant als het openbaar wordt, maar geen echte schade.
-Inhoud: Vergadering 14 maart 2025, aanwezigen: team Logistiek. Agendapunt 1: De Ricoh-printers op verdieping 2 worden in april vervangen door HP LaserJet-apparaten. Punt 2: Parkeervergunningen voor het nieuwe terrein zijn verkrijgbaar bij de receptie. Punt 3: Teamuitje is gepland in juni, suggesties welkom per e-mail.
+Inhoud: Vergadering 14 maart 2025, aanwezigen: team Logistiek. Agendapunt 1: De Ricoh-printers op verdieping 2 worden in april vervangen door HP LaserJet-apparaten.
 
-10. Schoonmaakrooster Gebouwen
+9. Schoonmaakrooster Gebouwen
 Beschrijving: Onderhoudsplanning voor magazijnvloeren.
 Classificatie: Intern
 Hint: Weten wanneer de vloeren precies worden gedweild, is puur een operationeel detail voor ons eigen personeel.
-Inhoud: Magazijn A: grondige schoonmaak elke dinsdag en vrijdag, 06:00–08:00. Magazijn B: wekelijks op donderdag. Kantoorvloeren: dagelijks stofzuigen, tweewekelijks dweilen. Het schoonmaakteam dient lekkages direct te melden via het facilitair beheerformulier op het intranet. Benodigdheden liggen opgeslagen in ruimte K-01.
+Inhoud: Magazijn A: grondige schoonmaak elke dinsdag en vrijdag, 06:00–08:00. Magazijn B: wekelijks op donderdag. Kantoorvloeren: dagelijks stofzuigen, tweewekelijks dweilen. Het schoonmaakteam dient lekkages direct te melden via het facilitair beheerformulier op intranet. Benodigdheden liggen opgeslagen in ruimte K-01.
 
-11. Concept Interne Vacature
+10. Concept Vacature
 Beschrijving: Functiebeschrijving vóór publicatie.
 Classificatie: Intern
 Hint: Het is nog niet openbaar. Een lek verstoort hooguit de planning van HR, maar kost de organisatie verder geen geld.
 Inhoud: CONCEPT — Vacature: Senior Veilingcoördinator, 36 uur/week, salarisschaal 10. Locatie: Soesterberg. Eisen: WO-niveau, 3+ jaar ervaring in logistiek of publieke sector. Let op: deze vacature wacht op goedkeuring van HR en wordt na beoordeling gepubliceerd op Werken voor Nederland.
 
-12. Onboarding-presentatie Nieuwe Medewerkers
+11. Onboarding-presentatie Nieuwe Medewerkers
 Beschrijving: Standaard introductieslides voor nieuwe collega's.
 Classificatie: Intern
 Hint: Dit bevat onze interne kantoorcultuur en regels. Onschuldig, maar alleen bedoeld voor de ogen van ons eigen team.
-Inhoud: Slide 4: Onze Kernwaarden — Transparantie, Integriteit, Efficiëntie. Slide 5: Werktijden zijn 08:30–17:00, flexibel binnen de kerntijden 09:30–15:30. Slide 6: Uw eerste week omvat: IT-configuratie (dag 1), teamintroductie (dag 2), buddyprogramma (dag 3–5). Neem contact op met HR via hr@drz.minfin.nl bij vragen.
+Inhoud: Slide 4: Onze Kernwaarden — Transparantie, Integriteit, Efficiëntie. Slide 5: Werktijden zijn 08:30–17:00, flexibel binnen de kerntijden 09:30–15:30. Slide 6: Uw eerste week omvat: IT-configuratie (dag 1), teamintroductie (dag 2), buddyprogramma (dag 3–5). Neem contact op met HR via personeelszaken@domeinenrz.nl bij vragen.
 
 
 ════════════════════════════════════════════════════════════════
 VERTROUWELIJK (6 documenten)
 ════════════════════════════════════════════════════════════════
 
-13. Persoonsgegevens Winnende Bieder
+12. Persoonsgegevens Hoogste Bieder
 Beschrijving: Namen, BSN-nummers en bankgegevens van kopers.
 Classificatie: Vertrouwelijk
 Hint: Denk aan de AVG! Als dit uitlekt, schenden we de privacy van burgers (BSN, bankrekeningen) en riskeren we flinke boetes.
-Inhoud: Veiling 2025-0892, gegevens winnende bieder: J.P. van der Berg, BSN 928.41.723, woonachtig op Keizersgracht 412, 1016 GC Amsterdam. Betaling via IBAN NL91 ABNA 0417 1643 00. Bod: €12.750 voor Kavel 089 (Audi A6 Avant). Identiteit geverifieerd via paspoort NW82P1KR4.
+Inhoud: Veiling 2025-0892, gegevens hoogste bieder: J.P. van der Berg, BSN 928.41.723, woonachtig op Keizersgracht 412, 1016 GC Amsterdam. Betaling via IBAN NL91 ABNA 0417 1643 00. Bod: €12.750 voor Kavel 089 (Audi A6 Avant). Identiteit geverifieerd via paspoort NW82P1KR4.
 
-14. Individuele Functioneringsgesprekken
-Beschrijving: HR-dossiers van veilingmeesters/managers.
+13. Individuele Functioneringsgesprekken
+Beschrijving: HR-dossiers van medewerkers DRZ.
 Classificatie: Vertrouwelijk
 Hint: Het uitlekken van HR-dossiers schaadt het vertrouwen van werknemers ernstig en is een harde schending van de privacywet.
-Inhoud: Jaarbeoordeling 2024 — Medewerker: R. Bakker, personeelsnummer 40921. Totaalbeoordeling: Voldoende. Sterke punten: goede communicatie met klanten, punctueel. Ontwikkelpunten: tijdmanagement onder druk, twee formele waarschuwingen wegens late rapportage. Aanbeveling leidinggevende: contract verlengen met verbeterplan. Salaris: €4.280/maand.
+Inhoud: Jaarbeoordeling 2024 — Medewerker: B. Slim, personeelsnummer 40921. Totaalbeoordeling: Voldoende. Sterke punten: goede communicatie met klanten, punctueel. Ontwikkelpunten: tijdmanagement onder druk, twee formele waarschuwingen wegens late rapportage. Aanbeveling leidinggevende: contract verlengen. Salaris: €4.280/maand.
 
-15. Beveiligingscontract Particuliere Bewaking
+14. Beveiligingscontract Rijksbeveiliging Organisatie
 Beschrijving: Gedetailleerde prijsstelling en SLA's met beveiligingsfirma.
 Classificatie: Vertrouwelijk
 Hint: Dit bevat gevoelige commerciële tarieven. Als een concurrent dit ziet, schaadt dat onze financiële onderhandelingspositie.
-Inhoud: Contract SC-2025-114 tussen DRZ en SecureForce B.V. Looptijd: 3 jaar. Jaarlijkse vergoeding: €892.000. SLA: reactietijd op alarmen ≤ 8 minuten. Bewakingsroutes: Depot A zuidingang elke 45 min, Depot B perimeter elke 30 min. Boeteclausule: €5.000 per SLA-schending. Ondertekend door directeur P. de Groot.
+Inhoud: Contract SC-2025-114 tussen DRZ en Rijksbeveiliging Organisatie. Looptijd: 3 jaar. Jaarlijkse vergoeding: €892.000. SLA: reactietijd op alarmen ≤ 8 minuten. Bewakingsroutes: Depot A zuidingang elke 45 min, Depot B perimeter elke 30 min. Boeteclausule: €5.000 per SLA-schending. Ondertekend door directeur P. de Groot.
 
-16. Taxatierapport In Beslag Genomen Jacht
+15. Taxatierapport In Beslag Genomen Jacht
 Beschrijving: Financiële waardering van een privébezit.
 Classificatie: Vertrouwelijk
 Hint: Dit zijn gedetailleerde financiële gegevens van een particulier. Uitlekken veroorzaakt persoonlijke financiële schade.
-Inhoud: Taxatierapport — Vaartuig: M/Y "Eclipse II", 28m Sunseeker, in beslag genomen onder rechterlijk bevel 2024/KG/4421. Geschatte marktwaarde: €2.150.000. Huidige ligplaats: Marina IJmuiden, steiger 14-C. Staat: goed, motoronderhoud nodig. Vorige geregistreerde eigenaar: Holding Maaskant B.V., KvK 58201844.
+Inhoud: Taxatierapport — Vaartuig: M/Y "Eclipse II", 28m Sunseeker, in beslag genomen onder rechterlijk bevel 2024/KG/4421. Geschatte marktwaarde: €2.150.000. Huidige ligplaats: Marina IJmuiden, steiger 14-C. Staat: goed, motoronderhoud nodig. Geregistreerde eigenaar: Holding Maaskant B.V., KvK 58201844.
 
-17. Interne Audit Veilingopbrengsten
+16. Interne Audit Veilingopbrengsten
 Beschrijving: Rapport over een discrepantie van €50.000.
 Classificatie: Vertrouwelijk
 Hint: Er ontbreekt €50.000! Als dit uitlekt, loopt onze reputatie een flinke deuk op en riskeren we externe juridische claims.
 Inhoud: Auditreferentie: IA-2025-007. Bevinding: een verschil van €50.340 is vastgesteld tussen geregistreerde veilingopbrengsten en bankstortingen over Q3 2024. Betrokken veilingen: 2024-0711 t/m 2024-0734. Oorzaak wordt onderzocht. Vermoedelijke invoerfouten in het betalingsafstemmingssysteem. Aanbeveling: volledige transactiecontrole en dubbele goedkeuringsprocedure.
 
-18. IT-Kwetsbaarheidsbeoordeling
+17. IT-Kwetsbaarheidsbeoordeling
 Beschrijving: Technische scan met benodigde databasepatches.
 Classificatie: Vertrouwelijk
 Hint: Dit is een schatkaart voor hackers. Uitlekken vormt een groot financieel en veiligheidsrisico voor onze interne data.
@@ -126,82 +120,35 @@ Inhoud: Scandatum: 2025-02-10. Kritiek: SQL-injectie-kwetsbaarheid in veilingpor
 
 
 ════════════════════════════════════════════════════════════════
-DEP.V. – DEPARTEMENTAAL VERTROUWELIJK (6 documenten)
+DEP.V. — DEPARTEMENTAAL VERTROUWELIJK (5 documenten)
 ════════════════════════════════════════════════════════════════
 
-19. Ontmantelingsprotocol Hennepplantages
-Beschrijving: Logistiek voor het veilig opruimen van illegale kwekerijen.
+18. Ontmantelingsprotocol Hennepplantages
+Beschrijving: Logistiek voor het veilig ontmantelen van illegale kwekerijen.
 Classificatie: Dep.V.
 Hint: Als criminelen dit lezen, kunnen ze onze politieacties voorspellen en zich verstoppen. Het verstoort direct de rechtsgang.
 Inhoud: Operatiedossier: ontmanteling van 3 illegale hennepplantages in Noord-Brabant, in beslag genomen onder bevel 2025/RB/1192. Locatie 1: Industrieweg 44, Eindhoven (geschat 2.400 planten). Hazmat-team vereist voor verwijdering chemische meststoffen. Alle in beslag genomen apparatuur naar DRZ Depot C onder politiebegeleiding. Coördinatie met Politie eenheid Oost-Brabant.
 
-20. OM-Correspondentie Georganiseerde Misdaad
+19. OM-Correspondentie Georganiseerde Misdaad
 Beschrijving: Brieven over beslaglegging bij High-Value Targets.
 Classificatie: Dep.V.
 Hint: Uitlekken brengt lopende inbeslagnames van het Openbaar Ministerie in gevaar. Dit schaadt direct de rechtsstaat.
-Inhoud: Brief van het Openbaar Ministerie, ref: OM/HVT/2025-0044. Onderwerp: bevel tot beslaglegging op bezittingen van doelwitten gelinkt aan Mocro-maffia-netwerk "Operatie Heron". Bezittingen omvatten 4 panden, 7 voertuigen en bankrekeningen ter waarde van €3,2 miljoen. DRZ geïnstrueerd om alle items onder strikte chain-of-custody te beveiligen en te catalogiseren. Niet openbaar maken aan derden.
+Inhoud: Brief van het Openbaar Ministerie, ref: OM/HVT/2025-0044. Onderwerp: bevel tot beslaglegging op bezittingen van doelwitten gelinkt aan maffia-netwerk "Operatie Heron". Bezittingen omvatten 4 panden, 7 voertuigen en bankrekeningen ter waarde van €3,2 miljoen. DRZ geïnstrueerd om alle items onder strikte chain-of-custody te beveiligen en te catalogiseren. Niet openbaar maken aan derden.
 
-21. Beveiligde Opslagplaats Plattegrond
+20. Beveiligde Opslagplaats Plattegrond
 Beschrijving: Kaarten met blinde vlekken van camera's in kluizen.
 Classificatie: Dep.V.
 Hint: Dit toont de dode hoeken van onze camera's. Een lek helpt georganiseerde misdaad direct bij het plannen van een overval.
 Inhoud: Plattegrond ref: SEC-VAULT-2024-R3. Blinde vlekken camera's geïdentificeerd: gang B7 (NO-hoek), laadperron 3 (achter pilaar P12). Kluisdeurcombinatie: elk kwartaal gerouleerd. Huidig gat in bewaking: 4 min venster tussen bewakersrondes om 02:15. Bewegingssensoren offline in zone D tijdens onderhoudsvenster donderdagen 22:00–00:00. Vrijgave: alleen Dep.V.
 
-22. Logistiek Plan Grootschalig Geldtransport
-Beschrijving: Transportgegevens voor miljoenen aan in beslag genomen contanten.
+21. Logistiek Plan Illegale Sigarettentransport
+Beschrijving: Dit plan beschrijft het vervoer van ruim 4,2 miljoen in beslag genomen illegale sigaretten, voornamelijk van het merk Marlboro en enkele Oost-Europese merken. De sigaretten zijn aangetroffen bij een grootschalige inval in een loods in Rotterdam en worden vanwege het bewijs voor verdere analyse en vernietiging naar een beveiligde opslaglocatie vervoerd.
 Classificatie: Dep.V.
-Hint: Dit is een recept voor een gewapende overval op onze transportteams. Het bedreigt een kerntaak van de overheid.
-Inhoud: Transportplan TP-2025-019. Lading: in beslag genomen contanten ter waarde van €4,7 miljoen (coupures: €500, €200, €100). Route: DRZ Depot Bleiswijk → DNB Amsterdam via A4/A10. Vertrek: 06:00 stipt. Begeleiding: 2 gepantserde voertuigen + KMar-eenheid. Geen tussenstops toegestaan. GPS-tracking actief. Uitwijkpunt: Shell Badhoevedorp.
+Hint: Dit transportplan bevat routes, tijden en beveiligingsdetails van in beslag genomen goederen. Als criminelen dit in handen krijgen, kunnen ze het transport onderscheppen of saboteren.
+Inhoud: Transportplan TP-2026-013. Lading: in beslag genomen sigaretten in 400 dozen (totale straatwaarde circa €1,3 miljoen). Route: Douane Depot Rotterdam → Gecontroleerde opslaglocatie Roosendaal via A16/A17. Vertrek: 07:30 uur. Begeleiding: 1 gepantserd transportvoertuig + douaneteam. Tussentijdse stop: Douanecontrole Breda. GPS-tracking en CCTV bewaking tijdens het gehele transport. Uitwijkpunt bij incident: Rijkswaterstaat opslag Zevenbergen.
 
-23. Strategie Gevaarlijk Militair Surplus
-Beschrijving: Vernietigingsprotocol voor giftig marine-afval.
-Classificatie: Dep.V.
-Hint: Het verkeerd omgaan met deze informatie kan leiden tot milieurampen en zware politieke gevolgen voor het Ministerie van Financiën.
-Inhoud: Vernietigingsprotocol MIL-HAZ-2025-003. Items: 14 ton giftige antifouling-verf van uit dienst genomen RNLN-schepen. Classificatie: ADR Klasse 6.1 (giftige stoffen). Opslag: bunker K-7, Marinebasis Den Helder. Geautoriseerd vernietigingsbedrijf: Vopak Environmental Services. Transport vereist Defensie-escorte en RIVM-melding. Niet openbaar maken.
-
-24. Rapport Fraude-onderzoek
+22. Rapport Fraude-onderzoek
 Beschrijving: Dossier over een medewerker verdacht van het tippen van kopers.
 Classificatie: Dep.V.
 Hint: Dit gaat over fraude door een medewerker. Een lek zou het strafrechtelijk onderzoek in gevaar brengen en de Minister ernstig in verlegenheid brengen.
-Inhoud: Onderzoeksreferentie: BI-2025-012, VERTROUWELIJK. Betrokkene: medewerker M. Jansen (afd. Logistiek, personeelsnr. 30847), verdacht van het lekken van aankomende kavelgegevens aan externe koper "AutoPlus Handelsbedrijf". Bewijs: 14 telefoongesprekken naar hetzelfde nummer voorafgaand aan 6 veilingen. Aanbeveling: schorsen in afwachting van OM-verwijzing. Betrokkene niet op de hoogte stellen.
-
-
-════════════════════════════════════════════════════════════════
-STAATSGEHEIM (6 documenten)
-════════════════════════════════════════════════════════════════
-
-25. Specificaties Afgestoten F-16 Hardware
-Beschrijving: Gegevens over onderdelen die vernietigd moeten worden voor de NAVO.
-Classificatie: Staatsgeheim
-Hint: Dit bevat geclassificeerde militaire data. Uitlekken brengt de NAVO-defensie en de nationale veiligheid direct in gevaar.
-Inhoud: NAVO BEPERKT — F-16AM avionics module AN/APG-66(V)2 radarunit, seriebatch KLu-2019-F16-044 t/m 052. Cryptografische IFF-transponderkaarten moeten worden vernietigd door verbranding (MIL-STD-882E). Overige celonderdelen vrijgegeven voor gecontroleerde verkoop. Geen overdracht aan niet-NAVO-landen toegestaan. Vernietiging bijgewoond door MIVD-verbindingsofficier.
-
-26. Sanctielijst Gesanctioneerde Oligarch
-Beschrijving: Inventaris van bezittingen in beslag genomen onder internationale sancties.
-Classificatie: Staatsgeheim
-Hint: Dit is gekoppeld aan internationale geopolitiek. Een lek veroorzaakt ernstige diplomatieke incidenten tussen landen.
-Inhoud: EU-Sanctieverordening 2024/1485. Doelwit: Dmitri V. Sorokin, Russisch staatsburger, geb. 14-08-1967. In beslag genomen bezittingen in NL: Villa aan Parkweg 9, Wassenaar (waarde €8,4M), Jacht "Tsarina" afgemeerd in Scheveningen, Picasso-schilderij "Femme Assise" in freeportopslag. Gezamenlijke operatie met FIOD, AIVD en EU-Raadswerkgroep. Verspreiding: uitsluitend Stg.
-
-27. AIVD/MIVD Protocol Hardwarevernietiging
-Beschrijving: Verwerking van black-box-technologie van inlichtingendiensten.
-Classificatie: Staatsgeheim
-Hint: Dit raakt de inlichtingendiensten. Uitlekken brengt in gevaar hoe onze spionnen werken en het land beschermen.
-Inhoud: CLASSIFICATIE: STAATSGEHEIM. Vernietigingsbatch SIGINT-2025-R08: 12x signals intelligence-ontvangers, 4x versleutelde satellietterminals, 2x netwerkexploitatie-apparaten. Herkomst: AIVD technische afdeling en MIVD-eenheid JISTARC. Alle items moeten fysiek worden vernietigd (versnipperd + gedemagnetiseerd) bij gecertificeerde faciliteit Zoetermeer. Geen fotografie. Geen civiele aannemers.
-
-28. Safe House-locaties Getuigenbescherming
-Beschrijving: Logistiek voor vastgoed ingezet bij getuigenbescherming.
-Classificatie: Staatsgeheim
-Hint: Dit is letterlijk een kwestie van leven of dood. Als dit uitlekt, kunnen mensen onder staatsbescherming worden geliquideerd.
-Inhoud: Getuigenbeschermingslogistiek, ref: WP/DRZ/2025-ALFA. Toegewezen gemeubileerde woningen: Eenheid A: Groningen (2-kamerappartement, omgeving Zuiderpark), Eenheid B: Maastricht (vrijstaande woning, Randwyck). Geregistreerd onder schermentiteit "Orion Vastgoed B.V." Maandelijkse huur betaald via OM discretionair budget lijn 7.4.2. Compromittering van deze locaties brengt levens van getuigen in gevaar.
-
-29. Criminele Inlichtingen Dreigingsrapport
-Beschrijving: Briefing over bendes die een gewapende overval plannen op een depot.
-Classificatie: Staatsgeheim
-Hint: Dit is zeer geheime politie-informatie (TCI). Uitlekken bedreigt de nationale veiligheid en brengt undercoveragenten in levensgevaar.
-Inhoud: DREIGINGSBRIEFING — URGENT. Bron: TCI (Team Criminele Inlichtingen), betrouwbaarheid: A2. Onderwerp: leden van bende "Taghi-netwerk" plannen gewapende overval op DRZ high-value depot Bleiswijk. Doelwit: in beslag genomen luxe voertuigen en geldkluisopslag. Geschat tijdsbestek: binnen 2–4 weken. Verdachten onder AIVD-surveillance. Geen zichtbare beveiliging ophogen om doelwitten niet te alarmeren.
-
-30. Terrorismefinanciering Beslagdossier
-Beschrijving: Dossiers over bezittingen die lopende opsporingsmethoden onthullen.
-Classificatie: Staatsgeheim
-Hint: Dit gaat over nationale terreurdreigingen. Een lek zou antiterrorisme-operaties verlammen en het hele land in gevaar brengen.
-Inhoud: CT-SEIZURE-2025-NL-009. In beslag genomen bezittingen van terrorismefinancieringsnetwerk gelinkt aan aangemerkte entiteit op UNSC 1267-lijst. Items: 12 prepaid telefoons, 3 versleutelde laptops, €280.000 in cryptocurrency-wallets. Bewijsketen onderhouden voor lopende NCTV/AIVD-operatie "Schaduwberg". Onthulling van beslagmethoden zou actieve infiltratieagenten compromitteren. Maximale beperking.
+Inhoud: Onderzoeksreferentie: BI-2025-012, VERTROUWELIJK. Betrokkene: medewerker M. Slim (afd. Taxatie, personeelsnr. 30847), verdacht van het lekken van aankomende kavelgegevens aan externe koper "AutoPlus Handelsbedrijf". Bewijs: 14 telefoongesprekken naar hetzelfde nummer voorafgaand aan 6 veilingen. Aanbeveling: schorsen in afwachting van OM-verwijzing.
