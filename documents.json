@@ -140,7 +140,7 @@
     "title": "Ontmantelingsprotocol Hennepplantages",
     "description": "Logistiek voor het veilig ontmantelen van illegale kwekerijen.",
     "classification": "dep-v",
-    "hint": "Als criminelen dit lezen, kunnen ze onze politieacties voorspellen en zich verstoppen. Het verstoort direct de rechtsgang.",
+    "hint": "Dit dossier is gekoppeld aan een lopende politieoperatie met concrete locaties en tijdstippen. Uitlekken brengt niet alleen DRZ in gevaar, maar verstoort direct de rechtsgang — serieus nadeel voor het ministerie. Typisch een tijdelijk Dep.V.-geval.",
     "body": "Operatiedossier: ontmanteling van 3 illegale hennepplantages in Noord-Brabant, in beslag genomen onder bevel 2025/RB/1192. Locatie 1: Industrieweg 44, Eindhoven (geschat 2.400 planten). Hazmat-team vereist voor verwijdering chemische meststoffen. Alle in beslag genomen apparatuur naar DRZ Depot C onder politiebegeleiding. Coördinatie met Politie eenheid Oost-Brabant."
   },
   {
@@ -148,31 +148,31 @@
     "title": "OM-Correspondentie Georganiseerde Misdaad",
     "description": "Brieven over beslaglegging bij High-Value Targets.",
     "classification": "dep-v",
-    "hint": "Uitlekken brengt lopende inbeslagnames van het Openbaar Ministerie in gevaar. Dit schaadt direct de rechtsstaat.",
+    "hint": "Actieve OM-operatie tegen georganiseerde misdaad, gekoppeld aan een specifieke gebeurtenis. Uitlekken schaadt de rechtsstaat en raakt het ministerie direct. Dit is het schoolvoorbeeld van wanneer Dep.V. wél passend is.",
     "body": "Brief van het Openbaar Ministerie, ref: OM/HVT/2025-0044. Onderwerp: bevel tot beslaglegging op bezittingen van doelwitten gelinkt aan maffia-netwerk \"Operatie Heron\". Bezittingen omvatten 4 panden, 7 voertuigen en bankrekeningen ter waarde van €3,2 miljoen. DRZ geïnstrueerd om alle items onder strikte chain-of-custody te beveiligen en te catalogiseren. Niet openbaar maken aan derden."
   },
   {
     "id": 20,
     "title": "Beveiligde Opslagplaats Plattegrond",
     "description": "Kaarten met blinde vlekken van camera's in kluizen.",
-    "classification": "dep-v",
-    "hint": "Dit toont de dode hoeken van onze camera's. Een lek helpt georganiseerde misdaad direct bij het plannen van een overval.",
-    "body": "Plattegrond ref: SEC-VAULT-2024-R3. Blinde vlekken camera's geïdentificeerd: gang B7 (NO-hoek), laadperron 3 (achter pilaar P12). Kluisdeurcombinatie: elk kwartaal gerouleerd. Huidig gat in bewaking: 4 min venster tussen bewakersrondes om 02:15. Bewegingssensoren offline in zone D tijdens onderhoudsvenster donderdagen 22:00–00:00. Vrijgave: alleen Dep.V."
+    "classification": "vertrouwelijk",
+    "hint": "Dit toont de dode hoeken van onze camera's. Een lek geeft criminelen een voorsprong bij een overval op DRZ — ernstige organisatorische schade, maar het raakt niet de kernbelangen van het ministerie. Vertrouwelijk is hier het juiste niveau; Dep.V. is gereserveerd voor uitzonderlijke, tijdelijke situaties.",
+    "body": "Plattegrond ref: SEC-VAULT-2024-R3. Blinde vlekken camera's geïdentificeerd: gang B7 (NO-hoek), laadperron 3 (achter pilaar P12). Kluisdeurcombinatie: elk kwartaal gerouleerd. Huidig gat in bewaking: 4 min venster tussen bewakersrondes om 02:15. Bewegingssensoren offline in zone D tijdens onderhoudsvenster donderdagen 22:00–00:00."
   },
   {
     "id": 21,
     "title": "Logistiek Plan Illegale Sigarettentransport",
     "description": "Dit plan beschrijft het vervoer van ruim 4,2 miljoen in beslag genomen illegale sigaretten, voornamelijk van het merk Marlboro en enkele Oost-Europese merken. De sigaretten zijn aangetroffen bij een grootschalige inval in een loods in Rotterdam en worden vanwege het bewijs voor verdere analyse en vernietiging naar een beveiligde opslaglocatie vervoerd.",
-    "classification": "dep-v",
-    "hint": "Dit transportplan bevat routes, tijden en beveiligingsdetails van in beslag genomen goederen. Als criminelen dit in handen krijgen, kunnen ze het transport onderscheppen of saboteren.",
+    "classification": "vertrouwelijk",
+    "hint": "Routes en tijden van een in beslag genomen transport. Uitlekken is schadelijk en kan het transport in gevaar brengen, maar het risico raakt DRZ-operationeel, niet de kernbelangen van het ministerie. Vertrouwelijk volstaat hier.",
     "body": "Transportplan TP-2026-013. Lading: in beslag genomen sigaretten in 400 dozen (totale straatwaarde circa €1,3 miljoen). Route: Douane Depot Rotterdam → Gecontroleerde opslaglocatie Roosendaal via A16/A17. Vertrek: 07:30 uur. Begeleiding: 1 gepantserd transportvoertuig + douaneteam. Tussentijdse stop: Douanecontrole Breda. GPS-tracking en CCTV bewaking tijdens het gehele transport. Uitwijkpunt bij incident: Rijkswaterstaat opslag Zevenbergen."
   },
   {
     "id": 22,
     "title": "Rapport Fraude-onderzoek",
     "description": "Dossier over een medewerker verdacht van het tippen van kopers.",
-    "classification": "dep-v",
-    "hint": "Dit gaat over fraude door een medewerker. Een lek zou het strafrechtelijk onderzoek in gevaar brengen en de Minister ernstig in verlegenheid brengen.",
+    "classification": "vertrouwelijk",
+    "hint": "HR-dossier met een strafrechtelijk tintje. Vertrouwelijk beschermt de privacy van de medewerker én het lopende onderzoek. Dep.V. is pas aan de orde als het ministerie zelf serieus nadeel dreigt te ondervinden — hier gaat het om organisatorische schade en geïsoleerd individueel gedrag.",
     "body": "Onderzoeksreferentie: BI-2025-012, VERTROUWELIJK. Betrokkene: medewerker M. Slim (afd. Taxatie, personeelsnr. 30847), verdacht van het lekken van aankomende kavelgegevens aan externe koper \"AutoPlus Handelsbedrijf\". Bewijs: 14 telefoongesprekken naar hetzelfde nummer voorafgaand aan 6 veilingen. Aanbeveling: schorsen in afwachting van OM-verwijzing."
   }
 ]
