@@ -79,7 +79,7 @@ Inhoud: Slide 4: Onze Kernwaarden — Transparantie, Integriteit, Efficiëntie. 
 
 
 ════════════════════════════════════════════════════════════════
-VERTROUWELIJK (6 documenten)
+VERTROUWELIJK (7 documenten)
 ════════════════════════════════════════════════════════════════
 
 12. Persoonsgegevens Hoogste Bieder
@@ -118,16 +118,16 @@ Classificatie: Vertrouwelijk
 Hint: Dit is een schatkaart voor hackers. Uitlekken vormt een groot financieel en veiligheidsrisico voor onze interne data.
 Inhoud: Scandatum: 2025-02-10. Kritiek: SQL-injectie-kwetsbaarheid in veilingportaal (CVE-2024-38124). Server drz-db-prod-01 draait op niet-gepatcht PostgreSQL 14.2. 3 bevindingen met hoge ernst, 11 gemiddeld. Beheerdersgegevens opgeslagen als platte tekst in config.yml. Onmiddellijk patchen vereist vóór de volgende veilingronde. Rapport opgesteld door: IT Security-team.
 
-
-════════════════════════════════════════════════════════════════
-DEP.V. — DEPARTEMENTAAL VERTROUWELIJK (5 documenten)
-════════════════════════════════════════════════════════════════
-
 18. Ontmantelingsprotocol Hennepplantages
 Beschrijving: Logistiek voor het veilig ontmantelen van illegale kwekerijen.
-Classificatie: Dep.V.
-Hint: Als criminelen dit lezen, kunnen ze onze politieacties voorspellen en zich verstoppen. Het verstoort direct de rechtsgang.
+Classificatie: Vertrouwelijk
+Hint: Concrete locaties en tijdstippen van een lopende politieoperatie. Uitlekken brengt onze mensen en de operatie direct in gevaar — ernstige schade, maar gericht op DRZ-uitvoering. Dep.V. is gereserveerd voor uitzonderlijke situaties waarin het ministerie zelf serieus nadeel ondervindt.
 Inhoud: Operatiedossier: ontmanteling van 3 illegale hennepplantages in Noord-Brabant, in beslag genomen onder bevel 2025/RB/1192. Locatie 1: Industrieweg 44, Eindhoven (geschat 2.400 planten). Hazmat-team vereist voor verwijdering chemische meststoffen. Alle in beslag genomen apparatuur naar DRZ Depot C onder politiebegeleiding. Coördinatie met Politie eenheid Oost-Brabant.
+
+
+════════════════════════════════════════════════════════════════
+DEP.V. — DEPARTEMENTAAL VERTROUWELIJK (1 document)
+════════════════════════════════════════════════════════════════
 
 19. OM-Correspondentie Georganiseerde Misdaad
 Beschrijving: Brieven over beslaglegging bij High-Value Targets.

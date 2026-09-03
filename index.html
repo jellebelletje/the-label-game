@@ -1136,83 +1136,6 @@ html, body {
   box-shadow: 0 2px 0 #1565C0, 0 3px 8px rgba(0,0,0,0.3);
 }
 
-/* Leaderboard */
-.leaderboard-section {
-  width: 90%;
-  max-width: 380px;
-  margin-bottom: 18px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.leaderboard-title {
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: rgba(255,255,255,0.9);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-  text-align: center;
-}
-
-.leaderboard-status {
-  text-align: center;
-  color: rgba(255,255,255,0.5);
-  font-size: 0.78rem;
-  padding: 8px 0;
-}
-
-.leaderboard-table {
-  width: 100%;
-}
-
-.lb-row {
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  border-radius: 8px;
-  margin-bottom: 3px;
-  font-size: 0.78rem;
-  color: white;
-  background: rgba(255,255,255,0.08);
-  gap: 8px;
-}
-
-.lb-row.lb-highlight {
-  background: rgba(255,215,0,0.18);
-  border: 1px solid rgba(255,215,0,0.3);
-  font-weight: 700;
-}
-
-.lb-rank {
-  width: 24px;
-  font-weight: 800;
-  color: #FFD54F;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.lb-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.lb-pct {
-  width: 44px;
-  text-align: right;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.lb-pass {
-  width: 16px;
-  text-align: center;
-  flex-shrink: 0;
-  font-size: 0.7rem;
-}
-
 /* ============================================================
    RESPONSIVE
    ============================================================ */
@@ -1414,11 +1337,6 @@ html, body {
         <span class="stat-label">Tijdbonus</span>
       </div>
     </div>
-    <div class="leaderboard-section" id="leaderboard-section">
-      <div class="leaderboard-title">Leaderboard Top 5</div>
-      <div class="leaderboard-status" id="leaderboard-status">Laden...</div>
-      <div class="leaderboard-table" id="leaderboard-table"></div>
-    </div>
     <button class="restart-btn" id="restart-btn">Opnieuw Spelen</button>
   </div>
 </div>
@@ -1570,15 +1488,16 @@ const DOCUMENTS = [
     body: 'Scandatum: 2025-02-10. <b>Kritiek: SQL-injectie-kwetsbaarheid in veilingportaal (CVE-2024-38124)</b>. Server drz-db-prod-01 draait op <b>niet-gepatcht PostgreSQL 14.2</b>. 3 bevindingen met hoge ernst, 11 gemiddeld. <b>Beheerdersgegevens opgeslagen als platte tekst in config.yml</b>. Onmiddellijk patchen vereist v\u00F3\u00F3r de volgende veilingronde. Rapport opgesteld door: IT Security-team.'
   },
 
-  // ── Dep.V. (2) ────────────────────────────────────
   {
     id: 18,
     title: "Ontmantelingsprotocol Hennepplantages",
     description: "Logistiek voor het veilig ontmantelen van illegale kwekerijen.",
-    classification: "dep-v",
-    hint: "Dit dossier is gekoppeld aan een lopende politieoperatie met concrete locaties en tijdstippen. Uitlekken brengt niet alleen DRZ in gevaar, maar verstoort direct de rechtsgang \u2014 serieus nadeel voor het ministerie. Typisch een tijdelijk Dep.V.-geval.",
+    classification: "vertrouwelijk",
+    hint: "Dit dossier bevat concrete locaties, tijdstippen en operationele details van een lopende politieactie. Uitlekken brengt de operatie \u00E9n betrokken medewerkers direct in gevaar \u2014 ernstige schade. Maar het gaat om tactische DRZ-uitvoering, niet om directe schade aan het staatsbelang of aan een lopende OM-vervolging. Vertrouwelijk is hier passend; Dep.V. is gereserveerd voor uitzonderlijke situaties.",
     body: 'Operatiedossier: <b>ontmanteling van 3 illegale hennepplantages</b> in Noord-Brabant, in beslag genomen onder bevel 2025/RB/1192. <b>Locatie 1: Industrieweg 44, Eindhoven</b> (geschat 2.400 planten). Hazmat-team vereist voor <b>verwijdering chemische meststoffen</b>. Alle in beslag genomen apparatuur naar DRZ Depot C onder politiebegeleiding. <b>Co\u00F6rdinatie met Politie eenheid Oost-Brabant</b>.'
   },
+
+  // ── Dep.V. (1) ────────────────────────────────────
   {
     id: 19,
     title: "OM-Correspondentie Georganiseerde Misdaad",
@@ -2720,56 +2639,6 @@ class Leaderboard {
     }
   }
 
-  async fetch() {
-    if (!this.enabled) return null;
-    try {
-      const res = await fetch(this.url + '?action=leaderboard&limit=5');
-      if (!res.ok) return null;
-      return await res.json();
-    } catch (e) {
-      console.warn('Leaderboard fetch failed:', e);
-      return null;
-    }
-  }
-
-  renderTable(data, currentName, currentScore) {
-    const container = document.getElementById('leaderboard-table');
-    const status = document.getElementById('leaderboard-status');
-    container.innerHTML = '';
-
-    if (!data || !data.length) {
-      status.textContent = this.enabled ? 'Geen scores beschikbaar.' : 'Scorebord niet geconfigureerd.';
-      status.style.display = 'block';
-      return;
-    }
-
-    status.style.display = 'none';
-    let foundCurrent = false;
-
-    data.slice(0, 5).forEach((entry, i) => {
-      const row = document.createElement('div');
-      row.className = 'lb-row';
-      const isCurrent = entry.name === currentName && entry.score === currentScore && !foundCurrent;
-      if (isCurrent) {
-        row.classList.add('lb-highlight');
-        foundCurrent = true;
-      }
-
-      row.innerHTML = `
-        <span class="lb-rank">${i + 1}</span>
-        <span class="lb-name">${this.escapeHtml(entry.name)}</span>
-        <span class="lb-pct">${entry.score} pts</span>
-        <span class="lb-pass">${entry.passed ? '\u2705' : '\u274C'}</span>
-      `;
-      container.appendChild(row);
-    });
-  }
-
-  escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
 }
 
 /* ============================================================
@@ -3061,28 +2930,15 @@ class Game {
       document.getElementById('end-screen').classList.add('visible');
     }, 400);
 
-    // Leaderboard
-    const statusEl = document.getElementById('leaderboard-status');
-    statusEl.style.display = 'block';
-    document.getElementById('leaderboard-table').innerHTML = '';
-
-    if (this.leaderboard.enabled) {
-      statusEl.textContent = 'Score versturen...';
-      await this.leaderboard.submit(
-        this.playerName, pct, this.scoring.correctCount,
-        CONFIG.totalDocuments, passed, finalScore,
-        this.scoring.basePointsEarned,
-        this.scoring.hintPenaltiesTotal,
-        this.scoring.timeBonus,
-        this.scoring.getRemainingSeconds()
-      );
-
-      statusEl.textContent = 'Scorebord laden...';
-      const data = await this.leaderboard.fetch();
-      this.leaderboard.renderTable(data, this.playerName, finalScore);
-    } else {
-      statusEl.textContent = 'Scorebord niet geconfigureerd. Stel LEADERBOARD_URL in om scores te delen.';
-    }
+    // Silent score submission (no UI — client wants completion tracking without a leaderboard)
+    this.leaderboard.submit(
+      this.playerName, pct, this.scoring.correctCount,
+      CONFIG.totalDocuments, passed, finalScore,
+      this.scoring.basePointsEarned,
+      this.scoring.hintPenaltiesTotal,
+      this.scoring.timeBonus,
+      this.scoring.getRemainingSeconds()
+    );
   }
 }
 

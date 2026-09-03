@@ -139,8 +139,8 @@
     "id": 18,
     "title": "Ontmantelingsprotocol Hennepplantages",
     "description": "Logistiek voor het veilig ontmantelen van illegale kwekerijen.",
-    "classification": "dep-v",
-    "hint": "Dit dossier is gekoppeld aan een lopende politieoperatie met concrete locaties en tijdstippen. Uitlekken brengt niet alleen DRZ in gevaar, maar verstoort direct de rechtsgang — serieus nadeel voor het ministerie. Typisch een tijdelijk Dep.V.-geval.",
+    "classification": "vertrouwelijk",
+    "hint": "Dit dossier bevat concrete locaties, tijdstippen en operationele details van een lopende politieactie. Uitlekken brengt de operatie én betrokken medewerkers direct in gevaar — ernstige schade. Maar het gaat om tactische DRZ-uitvoering, niet om directe schade aan het staatsbelang of aan een lopende OM-vervolging. Vertrouwelijk is hier passend; Dep.V. is gereserveerd voor uitzonderlijke situaties.",
     "body": "Operatiedossier: ontmanteling van 3 illegale hennepplantages in Noord-Brabant, in beslag genomen onder bevel 2025/RB/1192. Locatie 1: Industrieweg 44, Eindhoven (geschat 2.400 planten). Hazmat-team vereist voor verwijdering chemische meststoffen. Alle in beslag genomen apparatuur naar DRZ Depot C onder politiebegeleiding. Coördinatie met Politie eenheid Oost-Brabant."
   },
   {
